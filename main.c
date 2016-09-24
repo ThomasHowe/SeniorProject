@@ -241,6 +241,16 @@ struct let chooseemit(char a, struct let letter){
 			letter.size = 5;
 			return letter;
 		}
+		case '.': {
+			letter.letval = 42;
+			letter.size = 6;
+			return letter;
+		}
+		case '-': {
+			letter.letval = 33;
+			letter.size = 6;
+			return letter;
+		}
 		default : {
 			printf(“Only lower case letters no spaces”);
 			exit(2);			//error checking
