@@ -191,6 +191,56 @@ struct let chooseemit(char a, struct let letter){
 			letter.size = 4;
 			return letter;
 		}
+		case '1': {
+			letter.letval = 30;
+			letter.size = 5;
+			return letter;
+		}
+		case '2': {
+			letter.letval = 28;
+			letter.size = 5;
+			return letter;
+		}
+		case '3': {
+			letter.letval = 24;
+			letter.size = 5;
+			return letter;
+		}
+		case '4': {
+			letter.letval = 16;
+			letter.size = 5;
+			return letter;
+		}
+		case '5': {
+			letter.letval = 0;
+			letter.size = 5;
+			return letter;
+		}
+		case '6': {
+			letter.letval = 1;
+			letter.size = 5;
+			return letter;
+		}
+		case '7': {
+			letter.letval = 3;
+			letter.size = 5;
+			return letter;
+		}
+		case '8': {
+			letter.letval = 7;
+			letter.size = 5;
+			return letter;
+		}
+		case '9': {
+			letter.letval = 15;
+			letter.size = 5;
+			return letter;
+		}
+		case '0': {
+			letter.letval = 31;
+			letter.size = 5;
+			return letter;
+		}
 		default : {
 			printf(“Only lower case letters no spaces”);
 			exit(2);			//error checking
