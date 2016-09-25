@@ -27,6 +27,7 @@ float storemessage() {
 
 //Uses the callsigns KC1FKR and KC1FKT seperated by a space to figure out the
 //speed in wpm at which the Morse code is being transmitted.
+//The speed of a dot length at 12 wpm is 100mS
 float averagespeed(int message) {
   
   
