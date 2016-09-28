@@ -31,11 +31,45 @@ void initialize_pins(void){
   
 }
 
-int GPS_Status(char *longi, char *lat, char *alt){
+int GPS_Status(char *longi, char *lat, char *alt, int count){
    //Check if GPS is on or off already
    //Altitude Checking
    //Check to see if coord are same as last time
+  
+int state = 1;
+//Check if GPS is on or off already
+//if state is 1, the GPS is on
+//if state is 0, GPS is off
+//arrays storing all the values from the 
+char longis[100];
+char lats[100];
+char alts[100];
+//Check if the altitude is low and if the location is the same
+//if they are not the same, the alt and loc are 0
+//if they are the same, alt and loc are 1
+lowalt = 0;
+samealt = 0;
+sameloc = 0;
+
+If (state == 1) {
+	//add to what is currently in arrays
+	longis[count] = longi;
+	lats[count] = lat;
+	alts[count] = alt;
+	//Altitude Checking
+	if (5000 < alt) {
+		lowalt = 1;
+	}
+	if (alts[count] == alts[count-1] {
+		samealt = 1;
+	}
+	//Check to see if coord are the same as last time
+	if ((longis[count] == longis[count-1]) && (lats[count] == lats[count-1])) {
+		sameloc = 1;
+	}
 }
+
+} 
 
 void parse(){
    int i = 0;
