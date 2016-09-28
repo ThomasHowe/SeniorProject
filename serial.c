@@ -30,7 +30,7 @@ void initialize_pins(void){
   
 }
 
-int GPS_Status(char *long, char *lat, char *alt){
+int GPS_Status(char *longi, char *lat, char *alt){
    //Check if GPS is on or off already
    //Altitude Checking
    //Check to see if coord are same as last time
