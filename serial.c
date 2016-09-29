@@ -10,11 +10,12 @@ void parse(void);
 
 int main(){
   int i;
+  int count = 0;
   for(i=0;i<100;i++){
       transmit(100);
       usleep(900000);
   }
-  if (!GPS_Status(long,lat,alt)){
+  if (!GPS_Status(longi,lat,alt,count)){
       //Toggle Transistor to cut power to GPS
       //Save Last measured Coord to be sent periodically
   }
@@ -66,6 +67,11 @@ int GPS_Status(char *longi, char *lat, char *alt, int count){
 	//Check to see if coord are the same as last time
 	if ((longis[count] == longis[count-1]) && (lats[count] == lats[count-1])) {
 		sameloc = 1;
+	}
+	if ((lowalt == 1) && (samealt == 1) && (sameloc == 1)) {
+		//Set pins so that GPS is shut off
+		//Set state to zero
+		state = 0;
 	}
     }
 } 
