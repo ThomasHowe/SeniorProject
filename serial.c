@@ -74,7 +74,7 @@ void parse(){
    int i = 0;
    int n = 1;
    if(char[0] == 'G' && char[1] == 'P' && char[2] == 'G' && char[3] == 'G' && char[4] == 'A'){  //Checks to make sure its GPGGA msg
-      for(i=0; i<Sizeof(char);i++)                                                              //Traverses entire message
+      for(i=0; i<Sizeof(char);i++){                                                             //Traverses entire message
           if (char[i] == ',') count++;                                                          //counts number of commas they are separators
           if(count == 2){                                                                       //if comma count is 2, get lattitude
              while(char[i+n] != ','){                                                           //go until hits next comma
@@ -83,8 +83,24 @@ void parse(){
                 if(char[i+n] == ',') lat[n+1] = char[i+n+1];                                    //Adds direction of coordinates
              }
              i = i+n;                                                                           //Move to i+n in message and
-             count = 3;                                                                         //increment comma count
-          }
+	     count++;
+	  }
+	  if(count == 4){
+	     while(char[i+n] != ','){								//increment comma count
+   		long[n] = char[i+n];
+		n++;
+		if(char[i+n] == ',') long[n+1] = char[i + n + 1];
+	     }
+	     i = i+n
+	     count++;
+	  }
+	  if(count == 9){									//9 commas and we are at alt
+		  while(char[i+n] != ','){
+			  alt[n] = char[i+n];
+			  n++;
+		  }
+	  i = i+n;
+	  count++;
    }
 }
 }
