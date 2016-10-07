@@ -35,6 +35,34 @@ void initialize_pins(void){
   
 }
 
+char *Receive_Coordinates(void) {
+   volatile char packet1[128];
+   volatile char packet2[128];
+	
+   volatile char *rearbuffer;
+   volatile char *activebuffer;
+	
+   volatile char pointer = 0;
+   
+   activebuffer = packet1;
+   rearbuffer = packet2;
+   systick {
+      if(finishflag) {
+	   int finishflag = 1;
+	   int currentsample = 0;
+	   rearbuffer[currentsample] = something;
+	   if(currentsample < 128) {
+	       //start sampling what GPS is currently sending	   
+	       start();   
+	   }
+	   else {
+		currentsample = 0;
+		finishflag = 0;
+	   }
+      }
+   }
+}
+
 int GPS_Status(char *longi, char *lat, char *alt, int count){
    //Check if GPS is on or off already
    //Altitude Checking
