@@ -11,6 +11,9 @@ void parse(void);
 int main(){
   int i;
   int count = 0;
+  char longi = 0;
+  char lat = 0; 
+  char alt = 0;
   for(i=0;i<100;i++){
       transmit(100);
       usleep(900000);
