@@ -48,6 +48,7 @@ char storemessage(float dot, char message) {
     else {
       dot;
     }
+  }
 }
 
 //Uses the length of five dots to determine average speed.
