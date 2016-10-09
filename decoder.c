@@ -64,17 +64,15 @@ float averagespeed(char dot) {
   //signal down length
   float sdl = 0;
   int i = 0;
-  while(gpio != high) {
-    sut = time();
-    sul = time() - sut;
-  }
+  while(gpio != high);
+  sut = time();
+  sul = time() - sut;
   //.171 is roughly the time it takes for a dot at 7 wpm, 
   if (sul < .150 &&) {
     for(i = 1;i++;i<6) {
-      while(gpio != high) {
-        sut = time();
-        sul = time() - sut;
-      }
+      while(gpio != high);
+      sut = time();
+      sul = time() - sut;
       while(gpio = low);
       speed += sul;
     }
