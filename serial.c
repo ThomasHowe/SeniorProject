@@ -52,6 +52,10 @@ SPI1->CR1 = SPI_CR1_MSTR | SPI_CRI_BR;		//Configure CPOL and CPHA at zero to ris
 SPI1->CR2 = SPI_CR2_SSOE | SPI_CR2_RXNEIE;	//Slave select enabled, 8-bit Rx fifo
 SPI1->CR1 |= SPI_CR1_SPE;			//Enable the SPI1
 //Select simplex or half-simplex configure RXONLY or BIDIMODE	
+	
+//Set up GPS USART Communication
+USART1->BRR = 160000 / 96; 		  //9600 baud
+USART1->CR1 = USART_CR1_TE | USART_CR1_UE //8 data bit, 1 start bit, 1 stop bit, no parity
   
 }
 
