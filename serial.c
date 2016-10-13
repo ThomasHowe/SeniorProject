@@ -32,6 +32,26 @@ void initialize_pins(void){
 //Set up CC1101 into CW Mode
 //Set up GPS to get fix and go to low power mode
 //Set up pins for Serial Comm/Toggling battery to GPS on/CC1101 Toggling
+//Clock for GPIOA
+RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+RCC->IOPENR |= RCC_IOPENR_GPIOAEN;
+//Configure GPIO for MOSI,MISO, and SCK pins
+//PA4,5,6,7
+//PA4=NSS
+//PA5=SCK
+//PA6=MISO
+//PA7=MOSI
+GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODE4)) | (GPIO_MODER_MODE4_1);
+GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODE5)) | (GPIO_MODER_MODE5_1);
+GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODE6)) | (GPIO_MODER_MODE6_1);
+GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODE7)) | (GPIO_MODER_MODE7_1);
+//GPIOA->AFRL is already set to what is needed
+GPIOA->AFRL &= (0xFFFF0000);
+//Write to SPI_CR1 register
+SPI1->CR1 = SPI_CR1_MSTR | SPI_CRI_BR;		//Configure CPOL and CPHA at zero to rising edge
+SPI1->CR2 = SPI_CR2_SSOE | SPI_CR2_RXNEIE;	//Slave select enabled, 8-bit Rx fifo
+SPI1->CR1 |= SPI_CR1_SPE;			//Enable the SPI1
+//Select simplex or half-simplex configure RXONLY or BIDIMODE	
   
 }
 
