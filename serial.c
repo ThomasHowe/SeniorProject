@@ -76,8 +76,10 @@ char *Receive_Coordinates(void) {
 	   int currentsample = 0;
 	   rearbuffer[currentsample] = something;
 	   if(currentsample < 128) {
-	       //start sampling what GPS is currently sending	   
-	       start();   
+	       //start sampling what GPS is currently sending
+	       //Recieve byte
+	       //Will need to be fixed later, place HOLDER
+	       rearbuffer = (uint8_t)(USART1->RDR);  
 	   }
 	   else {
 		currentsample = 0;
