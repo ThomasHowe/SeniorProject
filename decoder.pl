@@ -15,3 +15,10 @@ Device::BCM2835::gpio_fsel(&Device::BCM2835::RPI_GPIO_P1_11, &Device::BCM2835::B
 
 #GPIO 17
 Device::BCM2835::gpio_fsel(&Device::BCM2835::RPI_GPIO_P1_17, &Device::BCM2835::BCM2835_GPIO_FSEL_INP);
+
+#Average speed of five dots
+@speed = (0, 0, 0, 0, 0);
+#I'll figure this out later
+
+#Call Python script
+my $ret = `/usr/bin/decode.py arg1`;
