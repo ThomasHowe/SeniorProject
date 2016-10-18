@@ -1,4 +1,6 @@
 use Device::BCM2835;
+use List::Util qw(sum);
+use DateTime;
 use strict;
 
 #From http://elinux.org/RPi_GPIO_Code_Samples
@@ -18,7 +20,21 @@ Device::BCM2835::gpio_fsel(&Device::BCM2835::RPI_GPIO_P1_17, &Device::BCM2835::B
 
 #Average speed of five dots
 @speed = (0, 0, 0, 0, 0);
-#I'll figure this out later
+for($i = 1; $i < 5; $i++) {
+    while(Device::BCM2835::gpio_read(&Device::BCM2835::RPIO_GPIO_P1_17, 0);
+    $sttime = DateTime->now();
+    while(Device::BCM2835::gpio_read(&Device::BCM2835::RPIO_GPIO_P1_17, 1);
+    $endtime = DateTime->now();
+    $elapsed = $endtime - $sttime;
+    $elapsed->in_units('miliseconds');
+    @speed($i) = $elapsed;
+}
+
+my arg1 = mean(@speed);
 
 #Call Python script
 my $ret = `/usr/bin/decode.py arg1`;
+
+sub mean {
+    return sum(@_)/@_;
+}
