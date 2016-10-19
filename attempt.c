@@ -18,9 +18,14 @@ void delayms(int time);
 struct let chooseemit(char a, struct let letter);
 
 int main(void) {
-	int i;
+	int i=1;
 	char **message;
 	int size[5];
+	
+	message = (char **)malloc(5 * sizeof(char *));
+	for(i=0;i<5;i++){
+		message[i] = (char *)malloc(10 * sizeof(char *));
+	}
 	
 	message[0][0] = 'h';
 	message[0][1] = 'e';
@@ -45,7 +50,7 @@ int main(void) {
 	size[1] = 5;
 	size[2] = 3;
 	size[3] = 3;
-	size[4] = 4;
+	size[4] = 3;
 	//SystemCoreClockConfigure();
 	//timerinitialize();
 	RCC->IOPENR  |=  ((1UL << 0));
@@ -68,7 +73,26 @@ int main(void) {
 		timer();
 	//}
 	while(1);*/
+	/*for(i=0;i<5;i++){
+		free(message[i]);
+	}
+	free(message);*/
+		//i++;
+		//delayms(0xFFFFE);
+		//GPIOA->ODR |= ((1UL << 4));
+		//__nop();
+		
+		//while(1);
+		//__nop();
+		//GPIOA->ODR &= ((1UL << 4));
+		//while(1);
+	
 	transmitstring(message, size);
+	for(i=0;i<5;i++){
+		free(message[i]);
+	}
+	free(message);
+	while(1);
 }
 
 
@@ -117,8 +141,10 @@ void timer(void){
 	//LPTIM1->CR|=0x2;
 	//TIM2->SR &= ~(0x1E5F);
 	//TIM2->SR &= ~(0x1E5F);
+	GPIOA->ODR |= ((1UL << 4));
 	while(1){
-		delayms(0xFFFFE);
+		delayms(1048574);
+
 	}
 	//__wfi();
 	//TIM2->SR &= ~(0x0001);
@@ -126,7 +152,8 @@ void timer(void){
 void SysTick_Handler(void){
 	//GPIOA->ODR |= ((1UL << 4));
 	Toggle_gpio();
-	SysTick->CTRL &= ~(0x1);
+	
+	SysTick->CTRL = 0;
 	/*int i = 0;
 	i++;*/
 }
@@ -335,19 +362,20 @@ void transmitstring(char **message, int *sizes){
 	struct let letter;
 	for(i=0;i<5;i++){
 		for(j=0;j<sizes[i];j++) {
-				delayms(100);
+				delayms(0xFFFFE);
 				letter = chooseemit(message[i][j], letter);
 				for(k=0;k<letter.size;k++) {
 					if((letter.letval>>k)&1) dash();
 					else dot();
 				} 
 		}
-		delayms(900);
+		delayms(0x16FFFE);
 	}
 }
 void dash(void) {
 	GPIOA->ODR |= ((1UL << 4));
-	delayms(0x26FFFE);
+	delayms(0x16FFFE);
+	
 }
 
 void dot(void) {
@@ -363,13 +391,16 @@ void delayms(int time){
 	SysTick->CTRL |= 0x4;
 	SysTick->CTRL |= 0x1;
 	SysTick->CTRL |= 0x2;
-	__wfe();
+	__wfi();
 }
 
 void Toggle_gpio(void){
-	if((GPIOA->ODR & GPIO_ODR_OD4) == GPIO_ODR_OD4){
+	/*if((GPIOA->ODR & GPIO_ODR_OD4) == GPIO_ODR_OD4){
 		GPIOA->ODR &= ~((1UL << 4));
 	}
-	else GPIOA->ODR |= ((1UL << 4));
+	else GPIOA->ODR |= ((1UL << 4));*/
+	GPIOA->ODR &= ~((1UL << 4));
+	;
 }
+
 
