@@ -1,5 +1,5 @@
 /*!
- * @file ece486_biquad.h
+ * @file ece406 encoder.h
  *
  * @brief ECE 406 Fall 2016 Senior Project "include" file
  *
