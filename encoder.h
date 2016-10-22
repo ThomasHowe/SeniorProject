@@ -4,7 +4,7 @@
  * @brief ECE 406 Fall 2016 Senior Project "include" file
  *
  * @author Alan Kwok
- * @author Christopher Verbitzki
+ * @author Thomas Howe
  * 
  * @date October 22, 2016
  */
