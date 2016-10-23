@@ -368,6 +368,9 @@ struct let chooseemit(char a, struct let letter){
 }
 
 void initialize_USART(void){
+	GPIOA->MODER &= ~((0x00200000));
+	GPIOA->MODER |=  ((0x00200000));
+	GPIOA->AFR[1] &= ~((0x00000F00));
 	USART1->BRR = 160000 / 96; /* (1) */
 	USART1->CR1 = USART_CR1_RXNEIE | USART_CR1_RE | USART_CR1_UE;
 }
