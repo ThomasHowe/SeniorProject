@@ -3,11 +3,15 @@
 #include "stm32l0xx.h"                  // Device header
 #include "stm32l053xx.h"
 
+#define ONEHUNDREDMS 0x33333						//Delayms value for delaying onehundred ms
+#define SEVENHMS 818500									//To use as Delay between Words
+
 struct let{
 	int size;
 	int letval;
 };
 
+void initialize_USART(void);
 void timerinitialize(void);
 void timer(void);
 void transmitstring(char **message, int *sizes);
@@ -15,6 +19,7 @@ void dot(void);
 void dash(void);
 void Toggle_gpio(void);
 void delayms(int time);
+void SleepUsart(void);
 struct let chooseemit(char a, struct let letter);
 
 int main(void) {
@@ -92,6 +97,11 @@ int main(void) {
 		free(message[i]);
 	}
 	free(message);
+	/*while(1){
+		GPIOA->ODR |= ((1UL << 4));
+		delayms(5 * ONEHUNDREDMS);
+		delayms(5 * ONEHUNDREDMS);
+	}*/
 	while(1);
 }
 
@@ -357,30 +367,49 @@ struct let chooseemit(char a, struct let letter){
 }
 }
 
+void initialize_USART(void){
+	USART1->BRR = 160000 / 96; /* (1) */
+	USART1->CR1 = USART_CR1_RXNEIE | USART_CR1_RE | USART_CR1_UE;
+}
+
+char Receive_Byte(void){
+	char x;
+	if((USART1->ISR & USART_ISR_RXNE) == USART_ISR_RXNE){
+		x = (uint8_t)(USART1->RDR); /* Receive data, clear flag */
+	}
+	return x;
+}
+
+void SleepUsart(void){					//Page 19 on Command Sheet for more info
+	
+}
+
+
 void transmitstring(char **message, int *sizes){
 	int i, k, j;
 	struct let letter;
 	for(i=0;i<5;i++){
 		for(j=0;j<sizes[i];j++) {
-				delayms(0xFFFFE);
+				delayms(2 * ONEHUNDREDMS);
 				letter = chooseemit(message[i][j], letter);
 				for(k=0;k<letter.size;k++) {
 					if((letter.letval>>k)&1) dash();
 					else dot();
+					delayms(1 * ONEHUNDREDMS);
 				} 
 		}
-		delayms(0x16FFFE);
+		delayms(4 * ONEHUNDREDMS);
 	}
 }
 void dash(void) {
 	GPIOA->ODR |= ((1UL << 4));
-	delayms(0x16FFFE);
+	delayms(3 * ONEHUNDREDMS);
 	
 }
 
 void dot(void) {
 	GPIOA->ODR |= ((1UL << 4));
-	delayms(0xFFFFE);
+	delayms(ONEHUNDREDMS);
 }
 
 void delayms(int time){
