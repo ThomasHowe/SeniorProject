@@ -5,6 +5,7 @@ import time
 from RPi import GPIO
 from array import array
 from pygame.locals import *
+from morse_lookup import *
 
 #Modified from https://www.raspberrypi.org/learning/morse-code-virtual-radio/worksheet/
 
@@ -28,7 +29,7 @@ def decoder():
       big_string = "".join(buffer)
       try_decode(bit_string)
       del buffer[:]
-     elif new_w and down_duration >= sys.argv*3:
+    elif new_w and down_duration >= sys.argv*3:
       new_w = False
       sys.stdout.write(" ")
       sys.stdout.flush()
