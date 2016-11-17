@@ -127,7 +127,7 @@ int8_t spibyte (int8_t data) {
 int8_t spireadreg (int8_t address) {
     int8_t temp = 0;
     int8_t value = 0;
-    temp = addr | READ_SINGLE; // read register command 
+    temp = address | 0x80; // read register command 
     output_low(CS); 
     while (input(MISO)); 
     spibyte (temp); 
@@ -171,7 +171,7 @@ packet halSPIreadstat(packet address) {
 
    output_low(CS); 
    while (input(MISO)); 
-   spibyte (addr|READ_BURST); 
+   spibyte (address|0x80); 
    // SPI_WAIT 
    val=spibyte (0); 
    // SPI_WAIT 
@@ -197,13 +197,13 @@ void halSPIreadburstreg(packet address, packet count) {
 
    output_low(CS); 
    while (input(MISO)); 
-   SpiTxRxByte (addr|READ_BURST); 
+   spibyte (address|0xC0); 
 //    SPI_WAIT();  
-   if(count>(BUF_SIZE-5)) count=BUF_SIZE-5; 
+   if(count>(100-5)) count=100-5; 
     for (i = 0; i < count; i++) { 
-       x=SpiTxRxByte (0); 
+       x=spibyte (0); 
         //SPI_WAIT(); 
-        rxBuffer[i] = x; 
+        rxbuffer[i] = x; 
     } 
    output_high(CS); 
 } 
@@ -236,6 +236,12 @@ halRfWriteReg(TEST1,0x35);   //Various Test Settings
 halRfWriteReg(TEST0,0x09);   //Various Test Settings
 }
 
-void sendpacket (int8_t size) {
-    halRFWriteReg ();    
+void sendpacket(int8_t size) {
+    halRFWriteReg(TXFIFO, size);
+    burstwrite(TXFIFO,size);
+    halSpiStrobe(STX);
+    
+    while(!input(GDO));    
+    while(input(GDO));
+    halSpiStrobe(SFTX);
 }
