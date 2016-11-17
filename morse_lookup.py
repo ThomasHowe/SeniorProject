@@ -43,7 +43,8 @@ morse_code_lookup = {
     ".-.-.-":   ".",
     "--..--":   ",",
     ".-.-.":    "+",
-    "-....-":   "-"
+    "-....-":   "-",
+    "-.-.--":	"!"
     
 }
 
@@ -53,4 +54,5 @@ def try_decode(bit_string):
 	#sys.stdout.write(bit_string)
 	#sys.stdout.write(" ")
         sys.stdout.flush()
+	return morse_code_lookup[bit_string]
 	
