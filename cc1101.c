@@ -57,10 +57,39 @@ RF_SETTINGS code rfSettings = {
     0x09,  // TEST0         Various Test Settings
 };
 
+int8_t spibyte (int8_t data) {
+    int8_t i = 0;
+    int8_t temp = 0;
+    //SCK low output
+    for (i = 0; i < 8; i++) {
+        if (data & 0x80) ;//output high MOSI
+        else ;//output low MOSI
+        
+        data <<= 1;
+        delay(whatever amount);
+        //output high SCK
+        temp <<= 1;
+        if (/**/) {
+            temp++;    
+        }
+        delay(whatever amount);
+        //output low SCK
+    }
+    return temp;
+}
+
+void halRFWriteReg (int8 addr, int8 value) {
+    //CS Out Low
+    while ();           //input MISO
+    spibyte (addr);     //Address
+    spibyte (value);    //Configuration
+    //CS out high
+}
+
 //
 // Rf settings for CC1101
 // Imported from SmartRF Studio
-
+void halRFSettings (void) {
 halRfWriteReg(IOCFG0,0x06);  //GDO0 Output Pin Configuration
 halRfWriteReg(FIFOTHR,0x47); //RX FIFO and TX FIFO Thresholds
 halRfWriteReg(PKTCTRL0,0x05);//Packet Automation Control
@@ -83,3 +112,4 @@ halRfWriteReg(FSCAL0,0x1F);  //Frequency Synthesizer Calibration
 halRfWriteReg(TEST2,0x81);   //Various Test Settings
 halRfWriteReg(TEST1,0x35);   //Various Test Settings
 halRfWriteReg(TEST0,0x09);   //Various Test Settings
+}
