@@ -2,6 +2,52 @@
 //Thomas Howe, Alan Kwok
 //11/16/2016
 
+//Modified from https://www.ccsinfo.com/forum/viewtopic.php?t=54957 for use on STM32L053
+
+#DEFINE 
+packet txbuffer[100]
+packet rxbuffer[100]
+recievelength=0;
+
+// Strobe commands 
+#define SRES 0x30 // Reset chip. 
+#define SFSTXON 0x31 // Enable and calibrate frequency synthesizer (if MCSM0.FS_AUTOCAL = 1). 
+// If in RX / TX: Go to a wait state where only the synthesizer is 
+// Running (for quick RX / TX turnaround). 
+#define SXOFF 0x32 // Turn off crystal oscillator. 
+#define SCAL 0x33 // Calibrate frequency synthesizer and turn it off 
+// (Enables quick start). 
+#define SRX 0x34 // Enable RX. Perform calibration first if coming from IDLE and 
+// MCSM0.FS_AUTOCAL = 1. 
+#define STX 0x35 // In IDLE state: Enable TX. Perform calibration first if 
+// MCSM0.FS_AUTOCAL = 1. If in RX state and CCA is enabled: 
+// Only go to TX if channel is clear. 
+#define SIDLE 0x36 // Exit RX / TX, turn off frequency synthesizer and exit 
+// Wake-On-Radio mode if applicable. 
+#define SAFC 0x37 // Perform AFC adjustment of the frequency synthesizer 
+#define SWOR 0x38 // Start automatic RX polling sequence (Wake-on-Radio) 
+#define SPWD 0x39 // Enter power down mode when CSn goes high. 
+#define SFRX 0x3A // Flush the RX FIFO buffer. 
+#define SFTX 0x3B // Flush the TX FIFO buffer. 
+#define SWORRST 0x3C // Reset real time clock. 
+#define SNOP 0x3D // No operation. May be used to pad strobe commands to two 
+// int8s for simpler software. 
+#define PARTNUM 0x30 
+#define VERSION 0x31 
+#define FREQEST 0x32 
+#define LQI 0x33 
+#define RSSI 0x34 
+#define MARCSTATE 0x35 
+#define WORTIME1 0x36 
+#define WORTIME0 0x37 
+#define PKTSTATUS 0x38 
+#define VCO_VC_DAC 0x39 
+#define TXBYTES 0x3A 
+#define RXBYTES 0x3B 
+#define PATABLE 0x3E 
+#define TXFIFO 0x3F 
+#define RXFIFO 0x3F 
+
 //Imported from SmartRF Studio
 // RF settings for CC1101
 
@@ -78,6 +124,18 @@ int8_t spibyte (int8_t data) {
     return temp;
 }
 
+int8_t spireadreg (int8_t address) {
+    int8_t temp = 0;
+    int8_t value = 0;
+    temp = addr | READ_SINGLE; // read register command 
+    output_low(CS); 
+    while (input(MISO)); 
+    spibyte (temp); 
+    value = spibyte (0); 
+    output_high(CS); 
+    return value;     
+}
+
 void halRFWriteReg (int8 addr, int8 value) {
     //CS Out Low
     while ();           //input MISO
@@ -85,6 +143,70 @@ void halRFWriteReg (int8 addr, int8 value) {
     spibyte (value);    //Configuration
     //CS out high
 }
+
+void burstwrite(packet address, packet count) {
+    int8_t i = 0;
+    
+    //low CS output
+    while (/*input MISO*/);
+    spibyte(address | 0x80) {
+        delay(whatever value);
+        for(i = 0; i < count; i++) {
+            spibyte(txbuffer[i]);
+            delay(whatever value);
+        }           
+    }
+    //CS output high
+}
+
+void halSpiStrobe(packet strobe) { 
+   output_low(CS); 
+   while (input(MISO)); 
+   spibyte (strobe); // write address 
+   output_high(CS); 
+}
+
+packet halSPIreadstat(packet address) {
+   int8_t val; 
+
+   output_low(CS); 
+   while (input(MISO)); 
+   spibyte (addr|READ_BURST); 
+   // SPI_WAIT 
+   val=spibyte (0); 
+   // SPI_WAIT 
+   output_high(CS); 
+   return val;         
+}
+
+packet halSPIreadburst(packet address, packet count) {
+    int8_t i = 0;
+    packet values;
+    
+    output_low(CS);
+    while (input(MISO));
+    spibyte (address|0xC0);
+    values = spibyte(0);
+    output_high(CS);
+    return values;
+}
+
+void halSPIreadburstreg(packet address, packet count) { 
+    int8_t i; 
+    packet x; 
+
+   output_low(CS); 
+   while (input(MISO)); 
+   SpiTxRxByte (addr|READ_BURST); 
+//    SPI_WAIT();  
+   if(count>(BUF_SIZE-5)) count=BUF_SIZE-5; 
+    for (i = 0; i < count; i++) { 
+       x=SpiTxRxByte (0); 
+        //SPI_WAIT(); 
+        rxBuffer[i] = x; 
+    } 
+   output_high(CS); 
+} 
 
 //
 // Rf settings for CC1101
@@ -112,4 +234,8 @@ halRfWriteReg(FSCAL0,0x1F);  //Frequency Synthesizer Calibration
 halRfWriteReg(TEST2,0x81);   //Various Test Settings
 halRfWriteReg(TEST1,0x35);   //Various Test Settings
 halRfWriteReg(TEST0,0x09);   //Various Test Settings
+}
+
+void sendpacket (int8_t size) {
+    halRFWriteReg ();    
 }
