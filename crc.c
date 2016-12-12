@@ -18,7 +18,7 @@ char * crc(char *input, int length)
 	}
 	crcvalue= ~crcvalue;
 	for(i=0;i<4;i++){
-		temp = crcvalue>>((16 - (4+(4*i))) & 0xF);
+		temp = (crcvalue>>(16 - (4+(4*i)))) & 0xF;
 		result[i] = crclookup(temp);
 	}
 	return result;
