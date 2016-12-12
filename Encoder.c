@@ -14,6 +14,7 @@
 #include "stm32l0xx.h"                  // Device header
 #include "stm32l053xx.h"
 
+//Start timer
 void timerinitialize(void){
 	SysTick->CTRL = 0;
 	SysTick->LOAD = 0xFFFFE;
@@ -24,6 +25,7 @@ void timerinitialize(void){
 	SysTick->CTRL |= 0x2;
 }	
 
+//Set timer
 void timer(void){
 	GPIOA->ODR |= ((1UL << 4));
 	while(1){
@@ -33,6 +35,9 @@ void timer(void){
 	//__wfi();
 	//TIM2->SR &= ~(0x0001);
 }
+
+//Set SysTick control to zero
+//Toggle the gpio
 void SysTick_Handler(void){
 	//GPIOA->ODR |= ((1UL << 4));
 	Toggle_gpio();
@@ -42,6 +47,11 @@ void SysTick_Handler(void){
 	i++;*/
 }
 
+//Function that establishes how to transmit in Morse
+//A dot is a zero
+//A dash is a one
+//Bits are in reverse order
+//LSB first, MSB last
 struct let chooseemit(char a, struct let letter){
 	switch (a) {
 		case 'a': {
@@ -235,12 +245,12 @@ struct let chooseemit(char a, struct let letter){
 			return letter;
 		}
 		default : {
-			//printf(“Only lower case letters no spaces”);
 			exit(2);			//error checking
+		}
 	}
 }
-}
 
+//transmit a string in Morse code
 void transmitstring(char **message, int *sizes){
 	int i, k, j;
 	struct let letter;
@@ -257,17 +267,20 @@ void transmitstring(char **message, int *sizes){
 	}
 }
 
+//Sleep for the time set by delayms, 3x dot 
 void dash(void) {
 	GPIOA->ODR |= ((1UL << 4));
 	delayms(0x16FFFE);
 	
 }
 
+//Sleep for time set by delayms
 void dot(void) {
 	GPIOA->ODR |= ((1UL << 4));
 	delayms(0xFFFFE);
 }
 
+//WFI used to enter sleep mode with low-power timer
 void delayms(int time){
 	SysTick->CTRL = 0;
 	SysTick->LOAD = time;
@@ -279,11 +292,8 @@ void delayms(int time){
 	__wfi();
 }
 
+//Toggle ODR
 void Toggle_gpio(void){
-	/*if((GPIOA->ODR & GPIO_ODR_OD4) == GPIO_ODR_OD4){
-		GPIOA->ODR &= ~((1UL << 4));
-	}
-	else GPIOA->ODR |= ((1UL << 4));*/
 	GPIOA->ODR &= ~((1UL << 4));
 	;
 }
