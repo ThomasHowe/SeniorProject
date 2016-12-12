@@ -7,6 +7,7 @@ import thread
 from array import array
 from pygame.locals import *
 from morse_lookup import *
+import subprocess
 
 pygame.mixer.pre_init(44100, -16, 1, 1024)
 pygame.init()
@@ -19,24 +20,6 @@ ser = serial.Serial(
 	bytesize=serial.EIGHTBITS,
 	timeout=1
 )
-
-
-class ToneSound(pygame.mixer.Sound):
-    def __init__(self, frequency, volume):
-        self.frequency = frequency
-        pygame.mixer.Sound.__init__(self, self.build_samples())
-        self.set_volume(volume)
-
-    def build_samples(self):
-        period = int(round(pygame.mixer.get_init()[0] / self.frequency))
-        samples = array("h", [0] * period)
-        amplitude = 2 ** (abs(pygame.mixer.get_init()[1]) - 1) - 1
-        for time in xrange(period):
-            if time < period / 2:
-                samples[time] = amplitude
-            else:
-                samples[time] = -amplitude
-        return samples
 
 def wait_for_keydown(pin):
     while GPIO.input(pin):
@@ -67,16 +50,29 @@ def decoder_thread():
             newbuffer.append(try_decode(bit_string))
 	    if i > 0:
 	   	if newbuffer[i-1] == 'E' and newbuffer[i] == 'E':
-			del newbuffer[:]
+			#del newbuffer[:]
+			newbuffer = newbuffer[:1]
 			#print "whoaaa"
 			i = -1
 	    if i > 0:
-	    	if newbuffer[i] == '+':
-			str = ''.join(newbuffer)
-			str2 = str.split("!")[1]
+	    	if newbuffer[i] == '+' and newbuffer.count('!') == 2:
+			str1 = ''.join(newbuffer)
+			str2 = str1.split("!")[1]
 			print "%s" % str2
-			ser.write(str2)
-			ser.write("\r\n")
+			str4 = str1.split("!")[2]
+			str4 = str4[:-1]
+			b = "+ "
+			for char in b:
+				str4 = str4.replace(char,"")
+			p = subprocess.Popen(['./testtest',str2],stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+			for line in iter(p.stdout.readline, b''):
+				str3 = line.rstrip()
+			print("whoa its from python: " + str3)
+			print("\nhereis" + str4 + "here is"+str3)
+			if str4 == str3:
+				print("whoa we made it")
+				ser.write(str2)
+				ser.write("\r\n")
 	    i=i+1
             del buffer[:]
         elif new_word and key_up_length >= .75:
