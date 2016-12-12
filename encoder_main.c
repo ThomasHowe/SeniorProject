@@ -22,14 +22,16 @@
 
 int main(void) {
 	
-	int i = 1; 
-	static int status = 1;
+	int i = 1; 				//For use as a counter
+	static int status = 1;			//For checking if balloon has landed
 	char **message;				//Storage of what will be sent via Morse code
-	int size[5];
-	volatile char buffer[128];
-	char oldalt[10];//, *oldlong, *oldlat;
+	int size[5];				//Part of size of message
+	volatile char buffer[128];		//For use for checking gps status
+	char oldalt[10];//, *oldlong, *oldlat;	//Compare with latest GPS message
 	
+	//Create struct for GPS information
 	struct gps newgps;
+	
 	//Allocate memory for message
 	message = (char **)malloc(5 * sizeof(char *));
 	for(i=0;i<5;i++){
@@ -38,31 +40,31 @@ int main(void) {
 	
 	//Callsigns to be sent via morse code 
 	message[0][0] = 'K';			//Call sign of Alan Kwok
-	message[0][1] = 'C';			
-	message[0][2] = '1';
-	message[0][3] = 'F';
-	message[0][4] = 'K';
-	message[0][5] = 'R';
+	message[0][1] = 'C';			//Call sign of Alan Kwok
+	message[0][2] = '1';			//Call sign of Alan Kwok
+	message[0][3] = 'F';			//Call sign of Alan Kwok
+	message[0][4] = 'K';			//Call sign of Alan Kwok
+	message[0][5] = 'R';			//Call sign of Alan Kwok
 	message[1][0] = 'K';			//Call Sign of Thomas Howe
-	message[1][1] = 'C';
-	message[1][2] = '1';
-	message[1][3] = 'F';
-	message[1][4] = 'K';
-	message[1][5] = 'T';
+	message[1][1] = 'C';			//Call Sign of Thomas Howe
+	message[1][2] = '1';			//Call Sign of Thomas Howe
+	message[1][3] = 'F';			//Call Sign of Thomas Howe
+	message[1][4] = 'K';			//Call Sign of Thomas Howe
+	message[1][5] = 'T';			//Call Sign of Thomas Howe
 	message[1][6] = '!';			//Used for Parsing
-	size[0] = 6;
-	size[1] = 7;
-	size[2] = 0;
-	size[3] = 6;
-	size[4] = 0;
+	size[0] = 6;				//How many chars in the first part of the message
+	size[1] = 7;				//How many chars in the second part of the message
+	size[2] = 0;				//How many chars in the third part of the message
+	size[3] = 6;				//How many chars in the forth part of the message
+	size[4] = 0;				//How many chars in the fifth part of the message
 	/*------------------------------------------------------------------*/
 	/*----------------------Initialize GPIO Pins------------------------*/
 	RCC->IOPENR  |=  ((1UL << 0));							//Right now using GPIO4 as output
-	GPIOA->MODER   &= ~((3UL << 2*4) | (3UL << 2*8));				
+	GPIOA->MODER   &= ~((3UL << 2*4) | (3UL << 2*8));				//Set GPIO4 mode
   	GPIOA->MODER   |=  ((1UL << 2*4) | (1UL << 2*8));				//Set GPIO4 as output mode
   	GPIOA->OTYPER  &= ~((1UL <<   4) | (1UL <<   8));				//sets output type
   	GPIOA->OSPEEDR &= ~((3UL << 2*4) | (3UL << 2*8));				//Sets speed
-  	GPIOA->OSPEEDR |=  ((1UL << 2*4) | (1UL << 2*8));
+  	GPIOA->OSPEEDR |=  ((1UL << 2*4) | (1UL << 2*8));				//Sets speed
   	GPIOA->PUPDR   &= ~((3UL << 2*4) | (3UL << 2*8));				//no pull up pull down
 	GPIOA->ODR 			|= ((1UL <<   8));
 	/*------------------------------------------------------------------*/
