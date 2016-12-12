@@ -316,8 +316,7 @@ struct let chooseemit(char a, struct let letter){		//Switch case function to set
 			return letter;
 		}
 		default : {
-			//printf(“Only lower case letters no spaces”);
-			//exit(2);			//error checking
+			//Error checking
 			letter.size = 0;
 			return letter;
 		}
@@ -325,12 +324,12 @@ struct let chooseemit(char a, struct let letter){		//Switch case function to set
 }
 
 //Initializes USART pins to talk to GPS
-void initialize_USART(void){										//Set up pins for USART1
+void initialize_USART(void){								//Set up pins for USART1
 	GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODE10)) | (GPIO_MODER_MODE10_1);	//SET to alt function mode
 	GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODE9)) | (GPIO_MODER_MODE9_1);
 	GPIOA->AFR[1] = (GPIOA->AFR[1] & ~(0x00000FF0)) | (4 << (1 * 4)) | (4<<(2*4));	//Set to alt function for usart
 	RCC->APB2ENR |= RCC_APB2ENR_USART1EN;																						//Turn on usart clock
-	USART1->BRR = 160000 / 730; /* 9600 baud */
+	USART1->BRR = 160000 / 730; 							//9600 baud 
 	USART1->CR1 = USART_CR1_RE | USART_CR1_TE | USART_CR1_UE;																			//enable usart
 }
 
@@ -447,14 +446,14 @@ void dot17(void) {
 
 //Delay function, will put microprocessor to sleep, one hundred ms has been defined
 void delayms(int time){
-	SysTick->CTRL = 0;							//Clear systick control register to make sure it is off
+	SysTick->CTRL = 0;						//Clear systick control register to make sure it is off
 	SysTick->LOAD = time;						//SET systick load to set time of systick timer
 	NVIC_SetPriority(SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);	//Turn on the interrupt
-	SysTick->VAL = 0;								//clearerr timer
+	SysTick->VAL = 0;						//clearer timer
 	SysTick->CTRL |= 0x4;						
 	SysTick->CTRL |= 0x1;
 	SysTick->CTRL |= 0x2;						//Turn on systick timer
-	__wfi();												//Set processor into sleep mode and will wake up when interupt occurs.
+	__wfi();							//Set processor into sleep mode and will wake up when interupt occurs.
 }
 
 //Turns off the GPIO currently used to transmit
@@ -496,7 +495,6 @@ struct gps Parser(void){
 
 //Grab GPS data
 struct gps parserer(char *pong){
-	//char pong[80] = "GPGGA,,,,,,0,,,,,,,,*63";
 	struct gps result;
 	char message[60];
 	int las=0, laf=0, los=0, lof=0, als=0, alf=0;
@@ -507,11 +505,9 @@ struct gps parserer(char *pong){
 	for(i=0;i<size;i++){
 		if(pong[i] == ','){
 			ccount++;
-			//printf("%d\n", ccount);
 		}
 		if(ccount == 2 && las == 0){
 			las = i;
-			//printf("%d\n", las);
 		}
 		if(ccount == 3 && laf == 0) laf = i;
 		if(ccount == 4 && los == 0) los = i;
@@ -519,12 +515,6 @@ struct gps parserer(char *pong){
 		if(ccount == 9 && als == 0) als = i;
 		if(ccount == 10 && alf == 0) alf = i;
 	}
-	//printf("hello there\n");
-	/*if((laf-las) == 1){
-			//printf("oh no\n");
-	}*/
-	//message[j] = '!';
-	//j++;
 	k=0;
 	for(i = las+1; i<laf; i++){
 		message[j] = pong[i];
@@ -560,20 +550,14 @@ struct gps parserer(char *pong){
 		result.alti[k] = pong[i];
 		if(i == (alf-1)){
 			message[j+1] = pong[i+2];
-			//message[j+2] = '+';
-			//j++;
 			j++;
 		}
 		j++;
 		k++;
 	}
 	if(j < 5) return result;
-	//message[j-1] = '!';
 	result.data = message;
 	result.size[1] = j-1;
-	/*for(i=0; i<j; i++){
-		//printf("%c", message[i]);
-	}*/
 	return result;
 }
 
