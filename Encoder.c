@@ -14,6 +14,7 @@
 #include "stm32l0xx.h"                  // Device header
 #include "stm32l053xx.h"
 
+//Test code for waking up processor from WFI
 void blinkledtest(void){
 	int i;
 	GPIOA->ODR |= ((1UL << 4));
@@ -23,12 +24,14 @@ void blinkledtest(void){
 		delayms(9 * ONEHUNDREDMS);
 	}
 }
-void SysTick_Handler(void){									//Goes here when Systick match interrupt occurs
-	Toggle_gpio();														//Turns off GPIO pin
-	SysTick->CTRL = 0;												//Turn off the systick timer so no more interrupts occur
+
+//SysTick for STM
+void SysTick_Handler(void){		//Goes here when Systick match interrupt occurs
+	Toggle_gpio();			//Turns off GPIO pin
+	SysTick->CTRL = 0;		//Turn off the systick timer so no more interrupts occur
 }
 
-
+//Calculate CRC value
 char * crc(char *input, int length)
 {
 	static char result[4];
@@ -37,8 +40,8 @@ char * crc(char *input, int length)
 	int j;
 	int i;
 	int step;
-	for(i=0;i<length;i++){ //For loop to traverse through each byte
-		for(j=0;j<8;j++){ //For loop to apply each byte to the CRC
+	for(i=0;i<length;i++){ 				//For loop to traverse through each byte
+		for(j=0;j<8;j++){ 			//For loop to apply each byte to the CRC
 			step = ((input[i] >> j) & 1) ^ (crcvalue & 1);
 			crcvalue = crcvalue >> 1;
 			crcvalue = crcvalue & 0x7FFF;
@@ -55,6 +58,7 @@ char * crc(char *input, int length)
 	return result;
 }
 
+//CRC lookup switch case statement
 char crclookup(int value){
 	switch(value){
 		case(0):
@@ -94,8 +98,12 @@ char crclookup(int value){
 	}
 }
 
-
-struct let chooseemit(char a, struct let letter){		//Crazy switch case function to set up morse code
+//a dot is a zero
+//a dash is a one
+//the bits are in reverse order 
+//lsb first, msb last
+//Switch case function to determine morse code from letter
+struct let chooseemit(char a, struct let letter){		//Switch case function to set up morse code
 	switch (a) {
 		case 'A': {
 			letter.letval = 2;
@@ -312,10 +320,11 @@ struct let chooseemit(char a, struct let letter){		//Crazy switch case function 
 			//exit(2);			//error checking
 			letter.size = 0;
 			return letter;
+		}
 	}
 }
-}
 
+//Initializes USART pins to talk to GPS
 void initialize_USART(void){										//Set up pins for USART1
 	GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODE10)) | (GPIO_MODER_MODE10_1);	//SET to alt function mode
 	GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODE9)) | (GPIO_MODER_MODE9_1);
@@ -325,7 +334,7 @@ void initialize_USART(void){										//Set up pins for USART1
 	USART1->CR1 = USART_CR1_RE | USART_CR1_TE | USART_CR1_UE;																			//enable usart
 }
 
-
+//USART communication
 void Transmit_Byte(char x){
 	while((USART1->ISR & USART_ISR_TXE) == 0){
 		;
@@ -333,27 +342,18 @@ void Transmit_Byte(char x){
 	USART1->TDR = x;
 }
 
+//Receives one byte from RDR register in USART1
 char Receive_Byte(void){
 	char x;
-//	int i;
 	USART1->ICR |= ((1 << 3));
-	//x = malloc(20 * sizeof(char));
-	//for(i=0;i<20;i++){
 	while((USART1->ISR & USART_ISR_RXNE) == 0){
 		;
 	}
-	//if((USART1->ISR & USART_ISR_RXNE) == USART_ISR_RXNE){
 		x = (uint8_t)(USART1->RDR); /* Receive data, clear flag */
-	//}
-//}
 	return x;
 }
 
-/*void SleepUsart(void){					//Page 19 on Command Sheet for more info
-	
-}*/
-
-
+//Transmits GPS code, sends words with sizes of words stored in sizes array
 void transmitstring(char **message, int *sizes){
 	int i, k, j;
 	struct let letter;
@@ -371,6 +371,7 @@ void transmitstring(char **message, int *sizes){
 	}
 }
 
+//Transmit at seventeen words per minute
 void transmit17wpm(char **message, int *sizes){
 	int i, k, j;
 	struct let letter;
@@ -388,6 +389,7 @@ void transmit17wpm(char **message, int *sizes){
 	}
 }
 
+//Transmit at seven words per minute
 void transmitsevenwpm(char **message, int *sizes){
 	int i, k, j;
 	struct let letter;
@@ -405,43 +407,45 @@ void transmitsevenwpm(char **message, int *sizes){
 	}
 }
 
+//Transmits a Dash and turns off GPIO after
 void dash(void) {
 	GPIOA->ODR &= ~((1UL << 4));
-	//GPIOA->ODR |= ((1UL << 4));
 	delayms(3 * ONEHUNDREDMS);
 	
 }
 
+//Transmits a Dot and turns off GPIO after
 void dot(void) {
-	//GPIOA->ODR |= ((1UL << 4));
 	GPIOA->ODR &= ~((1UL << 4));
 	delayms(ONEHUNDREDMS);
 }
+
+//Transmits a Dash at 7 words per minute
 void dash7(void) {
 	GPIOA->ODR &= ~((1UL << 4));
-	//GPIOA->ODR |= ((1UL << 4));
 	delayms(3 * SEVENWPM);
 	
 }
 
+//Transmits a Dot at 7 words per minute
 void dot7(void) {
-	//GPIOA->ODR |= ((1UL << 4));
 	GPIOA->ODR &= ~((1UL << 4));
 	delayms(SEVENWPM - 0x300);
 }
+
+//Transmits a Dash at 17 words per minute
 void dash17(void) {
 	GPIOA->ODR &= ~((1UL << 4));
-	//GPIOA->ODR |= ((1UL << 4));
 	delayms(3 * TEENWPM);
-	
 }
 
+//Transmits a Dot at 17 words per minute
 void dot17(void) {
-	//GPIOA->ODR |= ((1UL << 4));
 	GPIOA->ODR &= ~((1UL << 4));
 	delayms(TEENWPM);
 }
 
+//Delay function, will put microprocessor to sleep, one hundred ms has been defined
 void delayms(int time){
 	SysTick->CTRL = 0;							//Clear systick control register to make sure it is off
 	SysTick->LOAD = time;						//SET systick load to set time of systick timer
@@ -453,13 +457,13 @@ void delayms(int time){
 	__wfi();												//Set processor into sleep mode and will wake up when interupt occurs.
 }
 
+//Turns off the GPIO currently used to transmit
 void Toggle_gpio(void){
-	//GPIOA->ODR &= ~((1UL << 4));
 	GPIOA->ODR |= ((1UL << 4));
 	;
 }
 
-
+//Grab GPS data
 struct gps Parser(void){
 	char PING[5];
 	static char PONG[100] = "GPGGA";
@@ -486,14 +490,11 @@ struct gps Parser(void){
 		PONG[i] = Receive_Byte();
 	}
 	dmessage.data = PONG;
-	//dmessage.data = "GPGGA,202410.000,4042.6000,N,07400.4858,W,1,4,3.14,276.7,M,-34.2,M,,*63";
 	dmessage.size[0] = i;
-	//dmessage.size[0] = 71;
 	return dmessage;
 }
 
-
-
+//Grab GPS data
 struct gps parserer(char *pong){
 	//char pong[80] = "GPGGA,,,,,,0,,,,,,,,*63";
 	struct gps result;
@@ -576,6 +577,7 @@ struct gps parserer(char *pong){
 	return result;
 }
 
+//Check if Balloon has landed or not
 int GPScheck(char *oldalti, char *newalti, int status){
 	int oldalt, newalt;
 	if(status == 0) return 0;
