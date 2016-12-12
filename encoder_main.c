@@ -29,7 +29,7 @@ int main(void) {
 	for(i=0;i<5;i++){
 		message[i] = (char *)malloc(30 * sizeof(char *));
 	}
-																										//Test Message to be sent via morse code 
+	//Callsigns Message to be sent via morse code 
 	message[0][0] = 'K';
 	message[0][1] = 'C';
 	message[0][2] = '1';
@@ -55,16 +55,16 @@ int main(void) {
 	size[4] = 0;
 	/*------------------------------------------------------------------*/
 	/*----------------------Initialize GPIO Pins------------------------*/
-	RCC->IOPENR  |=  ((1UL << 0));							//Right now using GPIO4 as output
+	RCC->IOPENR  |=  ((1UL << 0));						//Right now using GPIO4 as output
 	GPIOA->MODER   &= ~((3UL << 2*4));				
-  GPIOA->MODER   |=  ((1UL << 2*4));					//Set GPIO4 as output mode
-  GPIOA->OTYPER  &= ~((1UL <<   4));					//sets output type
-  GPIOA->OSPEEDR &= ~((3UL << 2*4));					//Sets speed
-  GPIOA->OSPEEDR |=  ((1UL << 2*4));
-  GPIOA->PUPDR   &= ~((3UL << 2*4));					//no pull up pull down
+  	GPIOA->MODER   |=  ((1UL << 2*4));					//Set GPIO4 as output mode
+  	GPIOA->OTYPER  &= ~((1UL <<   4));					//sets output type
+  	GPIOA->OSPEEDR &= ~((3UL << 2*4));					//Sets speed
+  	GPIOA->OSPEEDR |=  ((1UL << 2*4));
+  	GPIOA->PUPDR   &= ~((3UL << 2*4));					//no pull up pull down
 	/*------------------------------------------------------------------*/
-	//blinkledtest();															//Blinks LED half a second on and off to test
-	initialize_USART();													//initialize the pins for USART comm
+	//blinkledtest();							//Blinks LED half a second on and off to test
+	initialize_USART();							//initialize the pins for USART comm
 	billy = Parser();
 	billy = parserer(billy.data);
 	message[1] = billy.data;
