@@ -35,8 +35,8 @@ char crclookup(int value);				//Lookup switch case statement
 void transmit17wpm(char **message, int *sizes);		//Transmit at seventeen words per minute
 int GPScheck(char *oldalti, char *newalti, int status); //Check if Balloon has landed or not
 char * crc(char *input, int length);			//Calculate CRC value
-struct gps parserer(char *pong);			//Grab GPS data
-struct gps Parser(void);				//Grab GPS data
+struct gps parserer(char *pong);			//Grab GPS data and parses it
+struct gps Parser(void);				//Grab GPS data and passes to parserer
 void Transmit_Byte(char x);				//USART communication
 void blinkledtest(void);				//Test code for waking up processor from WFI
 void transmitstring(char **message, int *sizes);	//Transmits GPS code, sends words with sizes of words stored in sizes array
