@@ -17,35 +17,39 @@
 #include "serial.h"
 #include "encoder.h"
 
+//Length of a beep in Morse code for 100ms Beep and 900ms 
 #define beep 0x33333
 
 int main(void) {
-	int i=1; 
-	static int status=1;
-	char **message;
+	
+	int i = 1; 
+	static int status = 1;
+	char **message;				//Storage of what will be sent via Morse code
 	int size[5];
 	volatile char buffer[128];
 	char oldalt[10];//, *oldlong, *oldlat;
 	
 	struct gps newgps;
+	//Allocate memory for message
 	message = (char **)malloc(5 * sizeof(char *));
 	for(i=0;i<5;i++){
 		message[i] = (char *)malloc(30 * sizeof(char *));
-	}	
+	}
+	
 	//Callsigns to be sent via morse code 
-	message[0][0] = 'K';
-	message[0][1] = 'C';
+	message[0][0] = 'K';			//Call sign of Alan Kwok
+	message[0][1] = 'C';			
 	message[0][2] = '1';
 	message[0][3] = 'F';
 	message[0][4] = 'K';
 	message[0][5] = 'R';
-	message[1][0] = 'K';
+	message[1][0] = 'K';			//Call Sign of Thomas Howe
 	message[1][1] = 'C';
 	message[1][2] = '1';
 	message[1][3] = 'F';
 	message[1][4] = 'K';
 	message[1][5] = 'T';
-	message[1][6] = '!';
+	message[1][6] = '!';			//Used for Parsing
 	size[0] = 6;
 	size[1] = 7;
 	size[2] = 0;
@@ -63,18 +67,25 @@ int main(void) {
 	GPIOA->ODR 			|= ((1UL <<   8));
 	/*------------------------------------------------------------------*/
 	
-	initialize_USART();	//initialize the pins for USART comm
+	initialize_USART();	//initialize the pins for USART communication
+	
+	//Infinite loop
 	while(1){
+		//Grabs GPS data
 		newgps = Parser();
+		//Grabs GPS data
 		newgps = parserer(newgps.data);
+		//Gets GPS data and gets it ready to send
 		message[2] = newgps.data;
 		size[2] = newgps.size[1];
+		//CRC calculation and transmission
 		message[3] = crc(message[2], size[2]);
 		for(i=4;i>0;i--){
 			message[3][i] = message[3][i-1];
 		}
-		message[3][0] = '!';
-		message[3][5] = '+';
+		message[3][0] = '!';		//Used for parsing
+		message[3][5] = '+';		//Used for parsing
+		//Demonstration for transmitting at 12, 7, and 17 words per minute
 		blinkledtest();
 		transmitstring(message,size);
 		blinkledtest();
@@ -82,9 +93,13 @@ int main(void) {
 		blinkledtest();
 		transmit17wpm(message,size);
 	}
+	
+	//Free memory of message
 	for(i=0;i<5;i++){
 		free(message[i]);
 	}
 	free(message);
+	
+	//Infinite loop
 	while(1);
 }
