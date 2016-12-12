@@ -15,13 +15,14 @@
 #include "stm32l053xx.h"
 
 //Test code for waking up processor from WFI
+//Also beep and sleep
 void blinkledtest(void){
-	int i;
-	GPIOA->ODR |= ((1UL << 4));
-	for(i=0;i<10;i++){
-		GPIOA->ODR &= ~((1UL << 4));
-		delayms(1 * ONEHUNDREDMS);
-		delayms(9 * ONEHUNDREDMS);
+	int i;					//Counter
+	GPIOA->ODR |= ((1UL << 4));		//GPIOA toggle 
+	for(i=0;i<10;i++){			//Beep and sleep ten times
+		GPIOA->ODR &= ~((1UL << 4));	//GPIOA toggle
+		delayms(1 * ONEHUNDREDMS);	//Length of beep
+		delayms(9 * ONEHUNDREDMS);	//Length of sleep
 	}
 }
 
@@ -36,15 +37,15 @@ char * crc(char *input, int length)
 {
 	static char result[4];
 	uint16_t crcvalue = 0xFFFF;
-	int temp;
-	int j;
-	int i;
+	int temp;							//Temporary value
+	int j;								//Counter
+	int i;								//Counter
 	int step;
-	for(i=0;i<length;i++){ 				//For loop to traverse through each byte
-		for(j=0;j<8;j++){ 			//For loop to apply each byte to the CRC
+	for(i=0;i<length;i++){ 						//For loop to traverse through each byte
+		for(j=0;j<8;j++){ 					//For loop to apply each byte to the CRC
 			step = ((input[i] >> j) & 1) ^ (crcvalue & 1);
-			crcvalue = crcvalue >> 1;
-			crcvalue = crcvalue & 0x7FFF;
+			crcvalue = crcvalue >> 1;			//Bit shift
+			crcvalue = crcvalue & 0x7FFF;			//Set top bit to zero
 			if(step){
 				crcvalue = crcvalue ^ 0x8408;
 			}
@@ -53,7 +54,7 @@ char * crc(char *input, int length)
 	crcvalue= ~crcvalue;
 	for(i=0;i<4;i++){
 		temp = (crcvalue >> (16 - (4+(4*i)))) & 0xF;
-		result[i] = crclookup(temp);
+		result[i] = crclookup(temp);				//Allows to be transmitted as Morse code later
 	}
 	return result;
 }
@@ -336,7 +337,7 @@ void initialize_USART(void){								//Set up pins for USART1
 //USART communication
 void Transmit_Byte(char x){
 	while((USART1->ISR & USART_ISR_TXE) == 0){
-		;
+		;					//Wait until flag is set
 	}
 	USART1->TDR = x;
 }
@@ -346,7 +347,7 @@ char Receive_Byte(void){
 	char x;
 	USART1->ICR |= ((1 << 3));
 	while((USART1->ISR & USART_ISR_RXNE) == 0){
-		;
+		;					//Wait until flag
 	}
 		x = (uint8_t)(USART1->RDR); /* Receive data, clear flag */
 	return x;
@@ -354,94 +355,94 @@ char Receive_Byte(void){
 
 //Transmits GPS code, sends words with sizes of words stored in sizes array
 void transmitstring(char **message, int *sizes){
-	int i, k, j;
+	int i, k, j;								//Counters
 	struct let letter;
 	for(i=0;i<5;i++){
 		for(j=0;j<sizes[i];j++) {
-				delayms(2 * ONEHUNDREDMS + 0x4000);
-				letter = chooseemit(message[i][j], letter);
-				for(k=0;k<letter.size;k++) {
-					if((letter.letval>>k)&1) dash();
-					else dot();
-					delayms(1 * ONEHUNDREDMS);
+				delayms(2 * ONEHUNDREDMS + 0x4000);		//
+				letter = chooseemit(message[i][j], letter);	//Translate to Morse
+				for(k=0;k<letter.size;k++) {			//size of letter as encoded in choose emit function
+					if((letter.letval>>k)&1) dash();	//Check for dash if the value is one, it means a dash
+					else dot();				//1 & 0 = 0, so its a dot
+					delayms(1 * ONEHUNDREDMS);		//Length of a dot
 				} 
 		}
-		delayms(4 * ONEHUNDREDMS);
+		delayms(4 * ONEHUNDREDMS);					//Space
 	}
 }
 
 //Transmit at seventeen words per minute
 void transmit17wpm(char **message, int *sizes){
-	int i, k, j;
+	int i, k, j;								//Counters
 	struct let letter;
 	for(i=0;i<5;i++){
 		for(j=0;j<sizes[i];j++) {
-				delayms(2 * ONEHUNDREDMS + 0x15000);
-				letter = chooseemit(message[i][j], letter);
-				for(k=0;k<letter.size;k++) {
-					if((letter.letval>>k)&1) dash17();
-					else dot17();
-					delayms(1 * TEENWPM);
+				delayms(2 * ONEHUNDREDMS + 0x15000);		//
+				letter = chooseemit(message[i][j], letter);	//Translate to Morse
+				for(k=0;k<letter.size;k++) {			//Size of letter as encoded in choose emit function
+					if((letter.letval>>k)&1) dash17();	//Check for dash if the value is one, it means a dash
+					else dot17();				//1 & 0 = 0, so its a dot
+					delayms(1 * TEENWPM);			//Length of a dot
 				} 
 		}
-		delayms(4 * ONEHUNDREDMS - 0x4000);
+		delayms(4 * ONEHUNDREDMS - 0x4000);				//Space
 	}
 }
 
 //Transmit at seven words per minute
 void transmitsevenwpm(char **message, int *sizes){
-	int i, k, j;
+	int i, k, j;								//Counters
 	struct let letter;
 	for(i=0;i<5;i++){
 		for(j=0;j<sizes[i];j++) {
-				delayms(1 * ONEHUNDREDMS + 0x14000);
-				letter = chooseemit(message[i][j], letter);
-				for(k=0;k<letter.size;k++) {
-					if((letter.letval>>k)&1) dash7();
-					else dot7();
-					delayms(1 * SEVENWPM - 0x300);
+				delayms(1 * ONEHUNDREDMS + 0x14000);		//
+				letter = chooseemit(message[i][j], letter);	//Translate to Morse
+				for(k=0;k<letter.size;k++) {			//Size of letter as encoded in choose emit function
+					if((letter.letval>>k)&1) dash7();	//Check for dash if the value is one, if means a dash
+					else dot7();				//1 & 0 = 0, so its a dot
+					delayms(1 * SEVENWPM - 0x300);		//Length of a dot
 				} 
 		}
-		delayms(4 * ONEHUNDREDMS);
+		delayms(4 * ONEHUNDREDMS);					//Space
 	}
 }
 
 //Transmits a Dash and turns off GPIO after
 void dash(void) {
 	GPIOA->ODR &= ~((1UL << 4));
-	delayms(3 * ONEHUNDREDMS);
+	delayms(3 * ONEHUNDREDMS);						//Length of 3 dot lengths
 	
 }
 
 //Transmits a Dot and turns off GPIO after
 void dot(void) {
 	GPIOA->ODR &= ~((1UL << 4));
-	delayms(ONEHUNDREDMS);
+	delayms(ONEHUNDREDMS);							//Length of one hundred ms
 }
 
 //Transmits a Dash at 7 words per minute
 void dash7(void) {
 	GPIOA->ODR &= ~((1UL << 4));
-	delayms(3 * SEVENWPM);
+	delayms(3 * SEVENWPM);							//Length of 3 dots at seven words per minute
 	
 }
 
 //Transmits a Dot at 7 words per minute
 void dot7(void) {
 	GPIOA->ODR &= ~((1UL << 4));
-	delayms(SEVENWPM - 0x300);
+	delayms(SEVENWPM - 0x300);						//Length of dots at seven words per minute
 }
 
 //Transmits a Dash at 17 words per minute
 void dash17(void) {
 	GPIOA->ODR &= ~((1UL << 4));
-	delayms(3 * TEENWPM);
+	delayms(3 * TEENWPM);							//Length of 3 dots at seventeen words per minute
 }
 
 //Transmits a Dot at 17 words per minute
 void dot17(void) {
 	GPIOA->ODR &= ~((1UL << 4));
-	delayms(TEENWPM);
+	delayms(TEENWPM);							//Length of dot at seventeen words per minute
 }
 
 //Delay function, will put microprocessor to sleep, one hundred ms has been defined
@@ -469,6 +470,7 @@ struct gps Parser(void){
 	int i = 4;
 	struct gps dmessage;
 	
+	//Used to check if the message is the right format
 	while(PING[4] != 'A'){
 		PING[0] = Receive_Byte();
 		if(PING[0] == 'G'){
@@ -484,6 +486,7 @@ struct gps Parser(void){
 			}
 		}
 	}
+	//Wait until * and grab bytes over USART
 	while(PONG[i] != '*'){
 		i++;
 		PONG[i] = Receive_Byte();
@@ -493,32 +496,33 @@ struct gps Parser(void){
 	return dmessage;
 }
 
-//Grab GPS data
+//Grab GPS data and parses it
 struct gps parserer(char *pong){
 	struct gps result;
-	char message[60];
-	int las=0, laf=0, los=0, lof=0, als=0, alf=0;
-	int i, j=0, k, size, ccount;
-	ccount = 0;
+	char message[60];				//Storage of GPS data
+	int las=0, laf=0, los=0, lof=0, als=0, alf=0;	//initialization, check whether certain information has been obtained
+	int i, j=0, k, size, ccount;			//Counters
+	ccount = 0;					//Comma count
 	size = 70;
 
+	//',' is used to check where in the message the parserer is
 	for(i=0;i<size;i++){
 		if(pong[i] == ','){
 			ccount++;
 		}
 		if(ccount == 2 && las == 0){
-			las = i;
+			las = i;			//Where the latitude information starts
 		}
-		if(ccount == 3 && laf == 0) laf = i;
-		if(ccount == 4 && los == 0) los = i;
-		if(ccount == 5 && lof == 0) lof = i;
-		if(ccount == 9 && als == 0) als = i;
-		if(ccount == 10 && alf == 0) alf = i;
+		if(ccount == 3 && laf == 0) laf = i;	//Where the latitude information ends
+		if(ccount == 4 && los == 0) los = i;	//Where the longitude information starts
+		if(ccount == 5 && lof == 0) lof = i;	//Where the longitude information ends
+		if(ccount == 9 && als == 0) als = i;	//Where the altitude information starts
+		if(ccount == 10 && alf == 0) alf = i;	//Where the altitude information ends
 	}
-	k=0;
-	for(i = las+1; i<laf; i++){
+	k=0;						//Set K to zero
+	for(i = las+1; i<laf; i++){			//Storage of the latitude information
 		message[j] = pong[i];
-		result.lati[k] = pong[i];
+		result.lati[k] = pong[i];		//Store latitude in struct
 		if(i == (laf-1)){
 			message[j+1] = ',';
 			message[j+2] = pong[i+2];
@@ -529,10 +533,10 @@ struct gps parserer(char *pong){
 		}
 		j++;
 	}
-	k=0;
-	for(i = los+1; i<lof; i++){
+	k=0;						//Reset K value
+	for(i = los+1; i<lof; i++){			//Storage of longitude information
 		message[j] = pong[i];
-		result.longi[k] = pong[i];
+		result.longi[k] = pong[i];		//Store longitude in struct
 		if(i == (lof-1)){
 			message[j+1] = ',';
 			message[j+2] = pong[i+2];
@@ -544,10 +548,10 @@ struct gps parserer(char *pong){
 		j++;
 		k++;
 	}
-	k=0;
-	for(i = als+1; i<alf; i++){
+	k=0;						//Reset K value
+	for(i = als+1; i<alf; i++){			//Storage of altitude information
 		message[j] = pong[i];
-		result.alti[k] = pong[i];
+		result.alti[k] = pong[i];		//Store altitude in struct
 		if(i == (alf-1)){
 			message[j+1] = pong[i+2];
 			j++;
@@ -557,8 +561,8 @@ struct gps parserer(char *pong){
 	}
 	if(j < 5) return result;
 	result.data = message;
-	result.size[1] = j-1;
-	return result;
+	result.size[1] = j-1;				//Size of the GPS information
+	return result;					//Return value that will be translated with emit and sent via Morse
 }
 
 //Check if Balloon has landed or not
