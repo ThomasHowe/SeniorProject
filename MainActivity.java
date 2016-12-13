@@ -23,6 +23,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+//Modified Code from a demo in Yifeng Zhu's ECE498 Android Class
+
 public class MainActivity extends Activity {
 
 	globalvar l = globalvar.getInstance();
@@ -179,7 +181,7 @@ public class MainActivity extends Activity {
 	}
 	
 	@Override
-    protected void onStart() {
+    	protected void onStart() {
 		// TODO Auto-generated method stub
         super.onStart();
         
@@ -220,5 +222,5 @@ public class MainActivity extends Activity {
 		   return "AUDIO_VIDEO";
 		  default: return "unknown!";
 		  }
-   }
+   	}
 }
