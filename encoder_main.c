@@ -22,13 +22,13 @@
 
 int main(void) {
 	
-	int i = 1; 				//For use as a counter
+	int i = 1, newsize, oldsize; 				//For use as a counter
 	static int status = 1;			//For checking if balloon has landed
 	char **message;				//Storage of what will be sent via Morse code
 	int size[5];				//Part of size of message
 	volatile char buffer[128];		//For use for checking gps status
 	char oldalt[10];//, *oldlong, *oldlat;	//Compare with latest GPS message
-	
+	char newalt[10];
 	//Create struct for GPS information
 	struct gps newgps;
 	
@@ -73,10 +73,20 @@ int main(void) {
 	
 	//Infinite loop
 	while(1){
+	    if(status != 0){
 		//Grabs GPS data
 		newgps = Parser();
 		//Grabs GPS data
 		newgps = parserer(newgps.data);
+		for(i=0;i<newgps.asize;i++)			//Grabs the altitude
+			newalt[i] = newgps.alti[i];
+		newsize = newgps.asize;				//used for iterations into altitude array
+		status = GPScheck(oldalt,newalt,newsize,oldsize,status);	//Checks whether or not balloon has landed
+		for(i=0;i<newsize;i++)				//Copies current altitude into old altitude array
+			oldalt[i] = newalt[i];
+		oldsize = newsize;
+		if(status == 0)					//If we have hit the ground, turn off the GPS
+			turnoffGPS();	
 		//Gets GPS data and gets it ready to send
 		message[2] = newgps.data;
 		size[2] = newgps.size[1];
@@ -87,13 +97,14 @@ int main(void) {
 		}
 		message[3][0] = '!';		//Used for parsing
 		message[3][5] = '+';		//Used for parsing
+	    }
 		//Demonstration for transmitting at 12, 7, and 17 words per minute
-		blinkledtest();
-		transmitstring(message,size);
-		blinkledtest();
-		transmitsevenwpm(message,size);
-		blinkledtest();
-		transmit17wpm(message,size);
+	    blinkledtest();
+	    transmitstring(message,size);
+	    blinkledtest();
+	    transmitsevenwpm(message,size);
+	    blinkledtest();
+	    transmit17wpm(message,size);
 	}
 	
 	//Free memory of message
@@ -102,6 +113,4 @@ int main(void) {
 	}
 	free(message);
 	
-	//Infinite loop
-	while(1);
 }
