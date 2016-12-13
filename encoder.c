@@ -567,18 +567,28 @@ struct gps parserer(char *pong){
 }
 
 //Check if Balloon has landed or not
-int GPScheck(char *oldalti, char *newalti, int status){
-	int oldalt, newalt;
+int GPScheck(char oldalti[10], char newalti[10],int asize,int oldasize, int status){
+	int i,j,oldalt, newalt,ten=1;
 	if(status == 0) return 0;
-	oldalt = sscanf(oldalti,"%d",&oldalt);
-	newalt = sscanf(newalti,"%d",&newalt);
+	for(i=0;i<oldasize;i++){
+		for(j=oldasize;j>1;j--)
+			ten = ten * 10;
+		oldalt = oldalt + (((uint8_t)oldalti[i] - 48) * ten);
+		ten = 1;
+	}
+	for(i=0;i<asize;i++){
+		for(j=asize;j>1;j--)
+			ten = ten * 10;
+		newalt = newalt + (((uint8_t)newalti[i] - 48) * ten);
+		ten = 1;
+	}
 	if(newalt > 5000){
 		return 2;
 	}
 	if(newalt < 5000 && status == 2){
 		return 3;
 	}
-	if((status == 3) && ((newalt - oldalt) < 20) && ((newalt - oldalt) > -20)){
+	else if((status == 3) && ((newalt - oldalt) < 20) && ((newalt - oldalt) > -20)){
 		return 0;
 	}
 	return status;
