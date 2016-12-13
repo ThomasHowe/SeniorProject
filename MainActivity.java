@@ -32,11 +32,11 @@ public class MainActivity extends Activity {
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothSocket mSocket; 
 	private BluetoothDevice mDevice;
-	private OutputStream mOutputStream;
-	private InputStream mInputStream;
+	private OutputStream mOutputStream;	//Used to send info from phone
+	private InputStream mInputStream;	//Info being sent to phone
 	 
-	private byte [] readBuffer = new byte[1024];
-	private byte delimiter = 13;   // New line
+	private byte [] readBuffer = new byte[1024];	//Buffer to read from input stream
+	private byte delimiter = 13;   			//newline character, the reason why we use trim in MapsActivity	
 	private volatile boolean stopWorker = false;
 	private int readBufferPosition = 0;
 
@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
 	private EditText message;
 	private Button send;
 	
-	void Find_Bluetooth(){
+	void Find_Bluetooth(){			//Connects to the bluetooth device
 		// Set up the Bluetooth
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (mBluetoothAdapter == null) {
@@ -75,7 +75,7 @@ public class MainActivity extends Activity {
 			        mArrayAdapter.add(device.getName() + "\n" + device.getAddress() + "\n" + deviceBTMajor);
 			        Toast.makeText(MainActivity.this, device.getName() + " " + device.getAddress(), Toast.LENGTH_SHORT).show();
 			        
-			        if(device.getAddress().equals("20:13:09:29:33:11")) { //Need to change this to match the name of your device
+			        if(device.getAddress().equals("20:13:09:29:33:11")) { //This is the address of the bluetooth chip used
 			              mDevice = device;			
 			              Toast.makeText(MainActivity.this, "Found the target bluetooth device!", Toast.LENGTH_LONG).show();
 			        }
@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
 			mSocket.connect();
 			mBluetoothAdapter.cancelDiscovery();     // Cancel, discovery slows connection
 			mOutputStream = mSocket.getOutputStream();
-			mInputStream = mSocket.getInputStream();
+			mInputStream = mSocket.getInputStream(); //Gets the input stream
 		} catch (IOException  e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -115,35 +115,35 @@ public class MainActivity extends Activity {
 	    tv.setText("Bluetooth Closed");
 	}
 	
-	void Bluetooth_Begin_Listen_For_Data() {
+	void Bluetooth_Begin_Listen_For_Data() {	//Function to get data from bluetooth
 		final Handler handler = new Handler();
 
 		Thread workerThread = new Thread (new Runnable() {
 			public void run() {
 				while(!Thread.currentThread().isInterrupted() && !stopWorker) {
 					try{
-						int bytesAvailable = mInputStream.available();
+						int bytesAvailable = mInputStream.available();	//There are bytes available to read from input stream
 						if(bytesAvailable > 0) {
 							byte[] packetBytes = new byte[bytesAvailable];
-							mInputStream.read(packetBytes);
+							mInputStream.read(packetBytes);		//reads from input stream
 							send.setOnClickListener(new View.OnClickListener() {
 								@Override
-								public void onClick(View v) {
+								public void onClick(View v) {	//Button that starts the map activity
 									Intent startnewactivity = new Intent(getApplicationContext(), MapsActivity.class);
 									startActivity(startnewactivity);
 								}
 							});
 							for(int i = 0; i <bytesAvailable; i++) {
 								byte b = packetBytes[i];
-								if(b == delimiter) {
+								if(b == delimiter) {//Code to convert from bytes sent to ascii text
 									byte[] encodedBytes = new byte[readBufferPosition];
 									System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
 									final String data = new String(encodedBytes, "US-ASCII");
 									readBufferPosition = 0;
 									handler.post(new Runnable() {
 										public void run() {
-											tv.setText(data);
-											l.setlatlongdata(data);
+											tv.setText(data);	//changes data shown in homescreen of app
+											l.setlatlongdata(data);	//Sets global variable 
 										}
 									});
 
@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
 	}
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {	//Function that starts with the app, "main" function
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		final ListView listview = (ListView) findViewById(R.id.new_devices);
@@ -194,7 +194,7 @@ public class MainActivity extends Activity {
 	}
 	
 
-	private String getBTMajorDeviceClass(int major){
+	private String getBTMajorDeviceClass(int major){	//List of device types for bluetooth, ours is UNCATEGORIZED
 		  switch(major){ 
 		  case BluetoothClass.Device.Major.AUDIO_VIDEO:
 		   return "AUDIO_VIDEO";
