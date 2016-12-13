@@ -114,59 +114,7 @@ public class MainActivity extends Activity {
 	    mSocket.close();
 	    tv.setText("Bluetooth Closed");
 	}
-
-	/*
-	void Bluetooth_Begin_Listen_For_Data() {
-		String hi = "Hello !";
-		final Handler handler = new Handler(); 
-		
-		Thread workerThread = new Thread (new Runnable() {
-			   public void run() {
-			     while(!Thread.currentThread().isInterrupted() && !stopWorker) {
-			    	 try{
-								//String str = new String(packetBytes, "UTF-8");
-								//message.setText(str);
-								String start = "Start ";
-								byte[] startBytes = start.getBytes();
-								mOutputStream.write(startBytes);
-								on.setOnClickListener(new View.OnClickListener() {
-									@Override
-									public void onClick(View v) {
-										String on = "on ";
-										byte[] onBytes = on.getBytes();
-										Toast.makeText(MainActivity.this, "Alarm On !", Toast.LENGTH_SHORT).show();
-										try {
-											mOutputStream.write(onBytes);
-										} catch (IOException e) {
-											e.printStackTrace();
-										}
-									}
-								});
-								off.setOnClickListener(new View.OnClickListener() {
-									@Override
-									public void onClick(View v) {
-										String off = "off ";
-										byte[] offBytes = off.getBytes();
-										Toast.makeText(MainActivity.this, "Alarm OFF !", Toast.LENGTH_SHORT).show();
-										try {
-											mOutputStream.write(offBytes);
-										} catch (IOException e) {
-											e.printStackTrace();
-										}
-									}
-								});
-
-
-			    	 } catch (IOException ex) {
-			                    stopWorker = true;
-			         }
-			     }
-			   }
-		});
-		workerThread.start();		
-	}
 	
-	*/
 	void Bluetooth_Begin_Listen_For_Data() {
 		final Handler handler = new Handler();
 
@@ -181,15 +129,6 @@ public class MainActivity extends Activity {
 							send.setOnClickListener(new View.OnClickListener() {
 								@Override
 								public void onClick(View v) {
-									/*String text = message.getText().toString();
-									byte[] textBytes = text.getBytes();
-									Toast.makeText(MainActivity.this, "Sent Message !", Toast.LENGTH_SHORT).show();
-									try {
-										mOutputStream.write(textBytes);
-									} catch (IOException e) {
-										e.printStackTrace();
-									}*/
-									//l.setlatlongdata(data);
 									Intent startnewactivity = new Intent(getApplicationContext(), MapsActivity.class);
 									startActivity(startnewactivity);
 								}
@@ -236,22 +175,7 @@ public class MainActivity extends Activity {
 		
         listview.setAdapter(mArrayAdapter);
         
-        Bluetooth_Begin_Listen_For_Data();
-
-
-	
-/*		String message = "This is a message";
-		
-		byte[] msgBuffer = message.getBytes();
-		
-		try {
-			mOutputStream.write(msgBuffer);
-			mOutputStream.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		
+        Bluetooth_Begin_Listen_For_Data();		
 	}
 	
 	@Override
