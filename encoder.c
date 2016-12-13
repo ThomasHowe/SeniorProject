@@ -60,6 +60,7 @@ char * crc(char *input, int length)
 }
 
 //CRC lookup switch case statement
+//Returns char of value in Hexadecimal
 char crclookup(int value){
 	switch(value){
 		case(0):
@@ -107,213 +108,213 @@ char crclookup(int value){
 struct let chooseemit(char a, struct let letter){		//Switch case function to set up morse code
 	switch (a) {
 		case 'A': {
-			letter.letval = 2;
-			letter.size = 2;
+			letter.letval = 2;			//10 in binary 
+			letter.size = 2;			//Number of digits in binary
 			return letter;
 		}
 		case 'B': {
-			letter.letval = 1;
-			letter.size = 4;
+			letter.letval = 1;			//0001 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case 'C': {
-			letter.letval = 5;
-			letter.size = 4;
+			letter.letval = 5;			//01001 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case 'D': {
-			letter.letval = 1;
-			letter.size = 3;
+			letter.letval = 1;			//0101 in binary
+			letter.size = 3;			//Number of digits in binary
 			return letter;
 		}
 		case 'E': {
-			letter.letval = 0;
-			letter.size = 1;
+			letter.letval = 0;			//0 in binary
+			letter.size = 1;			//Number of digits in binary
 			return letter;
 		}
 		case 'F': {
-			letter.letval = 4;
-			letter.size = 4;
+			letter.letval = 4;			//0100 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case 'G': {
-			letter.letval = 3;
-			letter.size = 3;
+			letter.letval = 3;			//011 in binary
+			letter.size = 3;			//Number of digits in binary
 			return letter;
 		}
 		case 'H': {
-			letter.letval = 0;
-			letter.size = 4;
+			letter.letval = 0;			//0000 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case 'I': {
-			letter.letval = 0;
-			letter.size = 2;
+			letter.letval = 0;			//00 in binary
+			letter.size = 2;			//Number of digits in binary
 			return letter;
 		}
 		case 'J': {
-			letter.letval = 14;
-			letter.size = 4;
+			letter.letval = 14;			//1110 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case 'K': {
-			letter.letval = 5;
-			letter.size = 3;
+			letter.letval = 5;			//101 in binary
+			letter.size = 3;			//Number of digits in binary
 			return letter;
 		}
 		case 'L': {
-			letter.letval = 2;
-			letter.size = 4;
+			letter.letval = 2;			//0010 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case 'M': {
-			letter.letval = 3;
-			letter.size = 2;
+			letter.letval = 3;			//11 in binary
+			letter.size = 2;			//Number of digits in binary
 			return letter;
 		}
 		case 'N': {
-			letter.letval = 1;
-			letter.size = 2;
+			letter.letval = 1;			//01 in binary
+			letter.size = 2;			//Number of digits in binary
 			return letter;
 		}
 		case 'O': {
-			letter.letval = 7;
-			letter.size = 3;
+			letter.letval = 7;			//111 in binary
+			letter.size = 3;			//Number of digits in binary
 			return letter;
 		}
 		case 'P': {
-			letter.letval = 6;
-			letter.size = 4;
+			letter.letval = 6;			//0110 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case 'Q': {
-			letter.letval = 11;
-			letter.size = 4;
+			letter.letval = 11;			//1011 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case 'R': {
-			letter.letval = 2;
-			letter.size = 3;
+			letter.letval = 2;			//010 in binary
+			letter.size = 3;			//Number of digits in binary
 			return letter;
 		}
 		case 'S': {
-			letter.letval = 0;
-			letter.size = 3;
+			letter.letval = 0;			//000 in binary
+			letter.size = 3;			//Number of digits in binary
 			return letter;
 		}
 		case 'T': {
-			letter.letval = 1;
-			letter.size = 1;
+			letter.letval = 1;			//1 in binary
+			letter.size = 1;			//Number of digits in binary
 			return letter;
 		}
 		case 'U': {
-			letter.letval = 4;
-			letter.size = 3;
+			letter.letval = 4;			//100 in binary
+			letter.size = 3;			//Number of digits in binary
 			return letter;
 		}
 		case 'V': {
-			letter.letval = 8;
-			letter.size = 4;
+			letter.letval = 8;			//1000 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case 'W': {
-			letter.letval = 6;
-			letter.size = 3;
+			letter.letval = 6;			//110 in binary
+			letter.size = 3;			//Number of digits in binary
 			return letter;
 		}
 		case 'X': {
-			letter.letval = 9;
-			letter.size = 4;
+			letter.letval = 9;			//1001 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case 'Y': {
-			letter.letval = 13;
-			letter.size = 4;
+			letter.letval = 13;			//1101 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case 'Z': {
-			letter.letval = 3;
-			letter.size = 4;
+			letter.letval = 3;			//0011 in binary
+			letter.size = 4;			//Number of digits in binary
 			return letter;
 		}
 		case '1': {
-			letter.letval = 30;
-			letter.size = 5;
+			letter.letval = 30;			//11110 in binary
+			letter.size = 5;			//Number of digits in binary
 			return letter;
 		}
 		case '2': {
-			letter.letval = 28;
-			letter.size = 5;
+			letter.letval = 28;			//11100 in binary
+			letter.size = 5;			//Number of digits in binary
 			return letter;
 		}
 		case '3': {
-			letter.letval = 24;
-			letter.size = 5;
+			letter.letval = 24;			//11000 in binary
+			letter.size = 5;			//Number of digits in binary
 			return letter;
 		}
 		case '4': {
-			letter.letval = 16;
-			letter.size = 5;
+			letter.letval = 16;			//10000 in binary
+			letter.size = 5;			//Number of digits in binary
 			return letter;
 		}
 		case '5': {
-			letter.letval = 0;
-			letter.size = 5;
+			letter.letval = 0;			//00000 in binary
+			letter.size = 5;			//Number of digits in binary
 			return letter;
 		}
 		case '6': {
-			letter.letval = 1;
-			letter.size = 5;
+			letter.letval = 1;			//00001 in binary
+			letter.size = 5;			//Number of digits in binary
 			return letter;
 		}
 		case '7': {
-			letter.letval = 3;
-			letter.size = 5;
+			letter.letval = 3;			//00011 in binary
+			letter.size = 5;			//Number of digits in binary
 			return letter;
 		}
 		case '8': {
-			letter.letval = 7;
-			letter.size = 5;
+			letter.letval = 7;			//00111 in binary
+			letter.size = 5;			//Number of digits in binary
 			return letter;
 		}
 		case '9': {
-			letter.letval = 15;
-			letter.size = 5;
+			letter.letval = 15;			//01111 in binary
+			letter.size = 5;			//Number of digits in binary
 			return letter;
 		}
 		case '0': {
-			letter.letval = 31;
-			letter.size = 5;
+			letter.letval = 31;			//00000 in binary
+			letter.size = 5;			//Number of digits in binary
 			return letter;
 		}
 		case '.': {
-			letter.letval = 42;
-			letter.size = 6;
+			letter.letval = 42;			//101010 in binary
+			letter.size = 6;			//Number of digits in binary
 			return letter;
 		}
 		case '-': {
-			letter.letval = 33;
-			letter.size = 6;
+			letter.letval = 33;			//100001 in binary
+			letter.size = 6;			//Number of digits in binary
 			return letter;
 		}
 		case ',': {
-			letter.letval = 51;
-			letter.size = 6;
+			letter.letval = 51;			//110011 in binary
+			letter.size = 6;			//Number of digits in binary
 			return letter;
 		}			
 		case '+': {
-			letter.letval = 10;
-			letter.size = 5;
+			letter.letval = 10;			//01010 in binary
+			letter.size = 5;			//Number of digits in binary
 			return letter;
 		}
 		case '!': {
-			letter.letval = 53;
-			letter.size = 6;
+			letter.letval = 53;			//110101 in binary
+			letter.size = 6;			//Number of digits in binary
 			return letter;
 		}
 		case '$': {
-			letter.letval = 33;
-			letter.size = 6;
+			letter.letval = 33;			//100001 in binary
+			letter.size = 6;			//Number of digits in binary
 			return letter;
 		}
 		default : {
