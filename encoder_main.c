@@ -1,7 +1,7 @@
 /*!
  * @file ece406 encoder_main.c
  *
- * @brief ECE 406 Fall 2016 Senior Project "include" file
+ * @Main Loop code for the Balloon Locator
  *
  * @author Alan Kwok
  * @author Thomas Howe
