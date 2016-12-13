@@ -37,47 +37,47 @@ def decoder_thread():
     while True:
         time.sleep(.001)
 	if time.time() - key_up_time >= 0:
-        	key_up_length = time.time() - key_up_time
-        if len(buffer) > 0 and key_up_length >= .29 and state == 1:
+        	key_up_length = time.time() - key_up_time								#Length of time key is up
+        if len(buffer) > 0 and key_up_length >= .29 and state == 1:							#Go through buffer only if down length is obtained
             new_word = True
             bit_string = "".join(buffer)
             newbuffer.append(try_decode(bit_string))
 	    if i > 0:
 	   	if newbuffer[i-1] == 'E' and newbuffer[i] == 'E':
-			newbuffer = newbuffer[:1]
+			newbuffer = newbuffer[:1]									#From beginning to position one
 			i = -1
 	    if i > 0:
 	    	if newbuffer[i] == '+' and newbuffer.count('!') == 2:
 			str1 = ''.join(newbuffer)
-			str2 = str1.split("!")[1]
+			str2 = str1.split("!")[1]									#Split on ! and create new string
 			print "%s" % str2
-			str4 = str1.split("!")[2]
-			str4 = str4[:-1]
+			str4 = str1.split("!")[2]									#Split on ! and create new string
+			str4 = str4[:-1]										#Remove last character
 			b = "+ "
 			for char in b:
-				str4 = str4.replace(char,"")
+				str4 = str4.replace(char,"")								#Replace +
 			p = subprocess.Popen(['./testtest',str2],stdout=subprocess.PIPE,stderr=subprocess.STDOUT)	#Call c program
 			for line in iter(p.stdout.readline, b''):
-				str3 = line.rstrip()
+				str3 = line.rstrip()									#Remove whitespace
 			print("whoa its from python: " + str3)								#See what CRC is calculatated to be  
-			print("\nhereis" + str4 + "here is"+str3)
-			if str4 == str3:
+			print("\nhereis" + str4 + "here is"+str3)							#Compare string 3 and string 4 and print
+			if str4 == str3:										#Compare above, if same, shows CRC worked
 				print("whoa we made it")								#Shows that the CRC calculated by the encoder and decoder are the same
 				ser.write(str2)
 				ser.write("\r\n")
 	    i=i+1
-            del buffer[:]
+            del buffer[:]												#Clear buffer
         elif new_word and key_up_length >= .75:
-            new_word = False
+            new_word = False												#Set new word to false
             sys.stdout.write(" ")
-            sys.stdout.flush()
+            sys.stdout.flush()												#Flush the buffer and write everything in buffer to terminal
 
 #Set pin as pull up
 pin = 7
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-#Establish dots and dashes
+#Establish dots and dashes for Morse lookup table
 DOT = "."
 DASH = "-"
 
@@ -95,11 +95,11 @@ print("Ready")
 
 while True:
     wait_for_keydown(pin)
-    key_down_time = time.time() #record the time when the key went down
-    key_up_time = time.time()	#record the time when the key went up
+    key_down_time = time.time() 				#record the time when the key went down
+    key_up_time = time.time()					#record the time when the key went up
     state = 0
     wait_for_keyup(pin)
-    key_up_time = time.time() #record the time when the key was released
-    key_down_length = key_up_time - key_down_time #get the length of time it was held down for
-    state = 1
-    buffer.append(DASH if key_down_length > 0.19 else DOT)
+    key_up_time = time.time() 					#record the time when the key was released
+    key_down_length = key_up_time - key_down_time 		#get the length of time it was held down for
+    state = 1							#Set to one when key down length is obtained
+    buffer.append(DASH if key_down_length > 0.19 else DOT) 	#Dash if length greater than 190mS, otherwise, it is a DOT
