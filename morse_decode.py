@@ -9,6 +9,7 @@ from pygame.locals import *
 from morse_lookup import *
 import subprocess
 
+#Set up serial for connecting with HC-05 Bluetooth chip
 ser = serial.Serial(
 	port="/dev/ttyAMA0",
 	baudrate = 9600,
