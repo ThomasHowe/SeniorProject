@@ -9,13 +9,15 @@ from pygame.locals import *
 from morse_lookup import *
 import subprocess
 
+#Modified dramatically from https://www.raspberrypi.org/learning/morse-code-virtual-radio/worksheet/
+
 #Set up serial for connecting with HC-05 Bluetooth chip
 ser = serial.Serial(
-	port="/dev/ttyAMA0",
-	baudrate = 9600,
-	parity=serial.PARITY_NONE,
-	stopbits=serial.STOPBITS_ONE,
-	bytesize=serial.EIGHTBITS,
+	port="/dev/ttyAMA0",				
+	baudrate = 9600,				#Baud rate
+	parity=serial.PARITY_NONE,			#Parity
+	stopbits=serial.STOPBITS_ONE,			#Number of stopbits
+	bytesize=serial.EIGHTBITS,			#Size of byte
 	timeout=1
 )
 
