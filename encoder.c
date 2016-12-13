@@ -330,9 +330,9 @@ void initialize_USART(void){								//Set up pins for USART1
 	GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODE10)) | (GPIO_MODER_MODE10_1);	//SET to alt function mode
 	GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODE9)) | (GPIO_MODER_MODE9_1);	
 	GPIOA->AFR[1] = (GPIOA->AFR[1] & ~(0x00000FF0)) | (4 << (1 * 4)) | (4<<(2*4));	//Set to alt function for usart
-	RCC->APB2ENR |= RCC_APB2ENR_USART1EN;						//Turn on USART	clock															//Turn on usart clock
+	RCC->APB2ENR |= RCC_APB2ENR_USART1EN;						//Turn on USART	clock				
 	USART1->BRR = 160000 / 730; 							//9600 baud 
-	USART1->CR1 = USART_CR1_RE | USART_CR1_TE | USART_CR1_UE;			//Enable USART																	//enable usart
+	USART1->CR1 = USART_CR1_RE | USART_CR1_TE | USART_CR1_UE;			//Enable USART		
 }
 
 //USART communication
