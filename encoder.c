@@ -6,7 +6,7 @@
  * @author Alan Kwok
  * @author Thomas Howe
  * 
- * @date October 22, 2016
+ * @date December 12, 2016
  */
 
 #include <stdio.h>
