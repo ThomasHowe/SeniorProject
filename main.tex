@@ -1,0 +1,407 @@
+% % % Headers and definitions
+\documentclass[12pt, letterpaper]{article}
+%\usepackage{times}
+\usepackage{setspace}
+\usepackage{fullpage} % sets more standardized margins
+\usepackage{graphicx} % some graphics functions I use 
+\usepackage{abstract} % abstract function
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage{array}
+\usepackage{gensymb}
+
+\renewcommand{\absnamepos}{flushleft} % left justifies abstract
+\setlength{\absleftindent}{0pt}
+\setlength{\absrightindent}{0pt}
+
+% % %
+% Set up IEEE style paragraphing
+% % %
+\setlength{\parskip}{0em} % The \par command now skips a line between paragraphs, eliminates warnings from using the \par or \\ commands
+\setlength{\parindent}{0em} % Left justifies paragraphs after a \par command 
+\onehalfspace
+\usepackage{titling}
+\renewcommand\maketitlehooka{\null\mbox{}\vfill}
+\renewcommand\maketitlehookd{\vfill\null}
+\begin{document}
+% Title and author
+\begin{titlingpage}
+\title{ \textbf{Balloon Locator} }
+\author{Thomas Howe Major: Computer Engineering\\
+Alan Kwok  Major: Computer Engineering\\ 
+University of Maine\\
+ECE Design Report
+}
+\date{\today}
+
+\maketitle
+\end{titlingpage}
+\pagenumbering{gobble}
+\newpage
+
+\pagenumbering{roman} % Turn off page numbering for titles and tables
+
+\begin{abstract}
+The Balloon Locator is a device that transmits GPS data via wireless signals and Morse code to a decoder. It uses Bluetooth to transfer that information to an Android device. The project is to be used for ballooning and will consist of two main components. The first component, the encoder, will consist of a microprocessor powering a GPS device. The encoder transmits positional coordinates received from the GPS. The transmissions will be in Morse code and will be decoded by a decoder unit. This decoder will be run by a second microprocessor and will decode the transmission from Morse code to ASCII (American Standard Code for Information Interchange) characters. These characters will be sent via Bluetooth to an Android device where Google maps will be used to display the location of the encoder. The accuracy of the GPS coordinates will also be tested to prevent error within the encoding and decoding process. The size of the device is within 12cm by 21cm. The size used for the current wireless encoder used by the University of Maine Ballooning team.
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+\newpage
+
+\listoftables
+\listoffigures
+\newpage
+
+\pagenumbering{arabic}
+
+\section{Introduction}
+This report describes the design, construction, and testing of the Balloon Locator Project. The Balloon Locator is a device that transmits the GPS coordinates from a high altitude balloon to a base station where the coordinates are viewable on an Android device using Google maps. Currently there are issues with balloons possibly being lost because of the short battery life of the position tracker. The project was designed to be a low power solution to current issues of tracking the high altitude balloons over long periods of time. \\
+
+The size specification refers to the transmitting device which must be within 12x21 centimeters, the available space for the device on the balloon. The device must use low power modes in order to conserve energy to maintain battery life. For 100 seconds, the transmitter must send out a continuous signal for 100ms, followed by 900ms in the low power state before sending GPS coordinates as well as the operator's Amateur Radio Callsign at 12 words per minute. The decoder must be capable of decoding Morse code between 7 and 17 words per minute and will update the Android application every 100 seconds. Finally, in order to conserve power, the GPS will turn off upon landing. \\ 
+
+In order to verify these specifications, an Oscilloscope and a ruler are required. The oscilloscope will be used to ensure precise timings were met, as well as to measure signals and power consumption. The ruler will be used to ensure the size constraints were met.\\ 
+
+Similar commercial devices are mostly used to track pets, vehicles, or luggage, however they have similar design concepts. The devices on the market send GPS data through RF signals to a database where the data is processed and sent to a phone application. Some of these devices do not seem to be designed for very low power uses and have battery lives of around 10 hours to 8 days. The Lightbug, which is a recent device on the market lasts for 8 days when in low power mode. Other devices such as the Spark Nano 5.0 have battery lives of up to 2 weeks when in low power mode.\\
+
+Section 2 presents an overview of the encoder and decoder software. Section 3 contains the in depth details of the Balloon Locator. The details section will include descriptions of software algorithms used throughout the Balloon Locator Project. Section 4 displays the results of the Balloon Locator Project and how they meet the specifications defined by the Contract. Section 5 is a conclusion and discussion of the results.
+
+\section{Breakdown}
+
+This section provides an overview of the hardware and software that comprises the Balloon Locator. The block diagram in Figure 1 provides a graphical summary of the overall function of the different portions of the hardware and software.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 1.1\textwidth]{blockdiagrm.png}
+    \caption{Functional block diagram of Balloon Locator}
+    \label{Ass0}
+\end{figure}
+
+The first portion of the project, the encoder, is powered by a 9V battery. The encoder consists of a 746 Adafruit GPS and ARM Cortex M0+ processor (Microprocessor in block diagram). The GPS obtains the coordinates in a format known as NMEA format which is then parsed by the processor. This processor then outputs the GPS coordinates in Morse code at regular intervals to the decoder.\\
+
+%The encoder does not have any user interface that changes modes or any function of the sort.\\
+
+The decoder is powered by an AC wall outlet. It consist of a Raspberry Pi 2 and an HC-05 Bluetooth chip. The Raspberry Pi 2 decodes the Morse code from the encoder into coordinates which are then passed to the Bluetooth chip. This chip then sends the information to an Android Device.\\
+
+The Android Device can be powered by battery or wall outlet. Multiple devices can be used for this portion of the Balloon Locator. The Android device receives information on the location of the balloon via Bluetooth and displays this information on a map to a user. The user navigates the map by using a touch capacitive screen, which can be used to verify that the Balloon Locator is working properly by "zooming in" on the location marked on the map to see how accurate the coordinates given are.\\
+
+The encoder and decoder software are examined at a high level in separate subsections 2.1 and 2.2 respectively. The Android Application is discussed in the Details section.
+
+\subsection{Encoder Software Diagram}
+The Balloon Locator is primarily a software project; because of this, Figure 2, a flowchart of the way the program works at a very high level, is given to make understanding of the project much easier. \\
+
+The encoder uses certain pins as inputs and outputs in order to send required information to different parts of the Balloon Locator. The speed, mode and pull up pull down status of the pins must also be set. The pins that are used to communicate with the GPS must be set for using USART communication. The pin used for this is set to alternate function mode. On the chip being used for the Balloon Locator project, the USART clock must be turned on and USART must be enabled. \\
+
+It should be noted in the following diagram of the Encoder that when the GPS information is being sent by the GPS to the microprocessor that before information is sent, a flag has to be set and after information has been received the flag will be cleared. \\
+
+GPIOA 4 is set as an output. GPIOA 9 and 10 are set for USART TX and RX.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 1\textwidth]{encoder}
+    \caption{Encoder software block diagram}
+    \label{Ass1}
+\end{figure}
+
+The GPIO pins for output and USART are initialized. The program then moves into the signal and sleep portion of the program. The encoder has a 100ms signal that is followed by a 900ms sleep. This is performed 100 times. The GPS status is then checked by the encoder. If the GPS is not landed the coordinates are parsed from the GPS information and then transmitted as Morse code. If the GPS has landed the GPS will be shut off if it is not already off. After this check, a CRC is calculated and then the current coordinates will be transmitted with the CRC at the end of the message.\\
+
+The encoder software algorithms are shown in depth in the details section. 
+
+\subsection{Decoder Software Diagram}
+The code was heavily influenced by a tutorial from Raspberry Pi Foundation on how to decode Morse code[2].
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 1\textwidth]{decoder}
+    \caption{decoder software block diagram}
+    \label{Ass2}
+\end{figure}
+
+The pins and variables are initialized. The program then checks the amount of time that the signal is on. If it is greater than 190ms, then a dash in Morse code is recorded, otherwise, the dot in Morse code is recorded. After every dot and dash, the program will check whether the end message has been sent. If it has, the CRC is calculated and checked for a match before Bluetooth is used to send the information to an Android Device.\\
+
+The decoder software algorithms are shown in depth in the details section.
+
+\section{Details}
+The details section describes the hardware, algorithms used for the encoder and decoder, and setup of Android Application information used in the Balloon Locator project in depth. In particular, the parsing algorithms, generation of Morse and decoding of Morse. 
+
+\subsection{Hardware Used}
+The Balloon Locator makes use of a relatively small amount of hardware. For a full list of parts and their cost, view the part list in Appendix C. The encoder uses a 746 Adafruit GPS. For debugging and testing purposes, a STM32L053C8 Discovery development board was used for testing and development purposes. The final iteration of the Balloon Locator uses a STM32L053. The decoder consists of a Raspberry Pi 2 and HC-05 Bluetooth chip. The Android device used for testing purposes is an Android tablet.\\
+
+The Adafruit GPS was used because it was provided by the department and fits the needs of the project. It communicates via serial communication and is very simple to use. The power consumption of the Adafruit GPS is relatively low compared to some other GPS devices on the market. The STM32L053 microprocessor was used because of its capability for sleep modes and low power modes which use less power than other processors. The Raspberry Pi 2 was used because it has the peripherals needed for serial communication and the processing power to measure the precise differences needed in timing to accurately decode Morse code. The Raspberry pi also can be connected to a monitor in order to view the Morse code being decoded in real time, making debugging easy. The HC-05 bluetooth chip was used because it is very easy to use. The HC-05 is slave-only so there is no setup required, the device can simple be turned on and its ready to connect to devices. This makes it easy for the user to use the HC-05 bluetooth device which is perfect for the balloon locator project.\\
+
+Any Android device could have been used for the purpose of testing that the correct coordinates were being sent. Comparing the coordinates with the Morse code from the encoder allowed the correctness of the Android Application to be verified.\\
+
+An Adafruit 32 pin QFN or TQFP breakout board is used in the final iteration of the project. This is used rather than the STM32L053C8 Discovery Development board because it reduces the amount of power that the project requires due to the breakout board not having many of the unnecessary peripherals that the Discovery kit includes.
+
+\subsection{Encoder Software Algorithms}
+This section is divided into multiple subsubsections which analyze and describe the GPS parsing algorithm, Morse code generation, and timing of Morse and why they are designed the way that they are. These routines are limited by what the hardware is capable of and the way that Morse itself functions. All routines were written in the C language.
+
+\subsubsection{GPS Parsing Algorithm}
+This section describes the GPS parsing algorithm. The parsing algorithm for the Balloon Locator project consists of two main functions, serial\_parser and GPS\_mesg\_parse. The first function, serial\_parser receives bytes of data from the GPS through serial communication. It then parses the information in order to receive only GPGGA formatted messages.  \\
+
+The design was made in a way that accommodates the method that data is passed from the GPS to the microprocessor. This has to do with the format of the data and how USART communication works. The GPS uses NMEA data. This format has strings that always begin and end in a certain way, so the parsing routine is written to parse this format. NMEA strings begin with a word, this first word is the data type. All data types have different interpretations so parsing routines need to be only set up to parse strings filled with data that they are interested in and other sentences can be discarded. Only strings that begin with 'GPGGA' are going to be parsed by this routine because strings that begin with these characters have data about latitude, longitude and altitude which is the data that the project requires for operating in the desired fashion.\\
+
+The routine is written for the singular purpose of interpreting NMEA strings in the GPGGA data format and discarding strings not in this data format because they have information that is not desired or needed for the operation of the project.A simple flow chart for the serial\_parser function is shown in Figure \ref{Ass3}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = .40\textwidth]{parsing}
+    \caption{Parser software block diagram}
+    \label{Ass3}
+\end{figure}
+
+As shown in Figure \ref{Ass3}, the function starts by grabbing bytes from the GPS using serial communication. To communicate with the GPS through serial communication, the RX pin must be initialized for the proper settings to match the GPS serial output. First the TX pin, pin PA9, must be set to alternative function mode. This is set in the GPIOA\_MODER register within memory. After this, the pin is paired with the USART1 register where the baudrate, number of parity bits, number of stop bits, and the size of bytes can be set. The GPS uses 9600 baudrate which is the only additional setup that is required from the STM32l053 as the default parity, stop bits, and byte size already match the Adafruit GPS. In order to set the baudrate for the STM32l053, the USART1-$>$BRR register must be set based on the processor frequency. The value used to set the baudrate to 9600 on the STM32l053 was 219. This was determined by using the digital measurement capabilities of the Digilent Analog Discovery 2. \\
+
+Once these values are set, the algorithms shown in Figure \ref{Ass3} can be performed. The first step is to read a byte of data from the RX pin. This is done by using the function Receive\_Byte. The function waits until the RXNE flag is set indicating that the RX buffer is filled with readable information. The data is read from the USART1-$>$RDR register, or read data register. The GPS will constantly send out different messages through the serial pipeline, however, only a GPGGA message is needed. A sample GPGGA message is shown below in Figure \ref{ASSASSASS}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 1.1\textwidth]{gpgga}
+    \caption{Sample GPGGA format message[3]}
+    \label{ASSASSASS}
+\end{figure}
+
+As shown in Figure \ref{ASSASSASS}, a GPGGA message starts with "GPGGA" and ends with a '*' symbol followed by two additional characters. For the function, bytes are continuously read until 5 bytes match "GPGGA" indicating that a GPGGA message is beginning. The bytes are then read until a '*' character is sent which is the end of a GPGGA message. Once the '*' character is read, the function stops reading bytes and sends the message to the next part of the parsing algorithm. This concludes the first step of the GPS parsing algorithm, the serial\_parser function. \\
+
+The second function, the GPS\_mesg\_parse function, takes the GPGGA message and extracts the lattitude, longitude, and altitude information. As shown in Figure \ref{ASSASSASS}, GPGGA messages use comma separated values in order to be parsed easily.  The function takes the GPGGA message and traverses through it while using a counter to count the number of commas, as well as record the position of the commas within the character array. After the function traverses all the way through the message, it uses the comma positions to capture only the latitude, longitude, and altitude information. All of these values are put into one long string to be sent via Morse code. The function returns the size of the message as well as individual information on the altitude for the GPS\_check function described in Section 3.2.5.
+
+
+\subsubsection{Morse Code Generation}
+This section describes the method used to generate Morse code. Morse code is a signal that can generate messages based on the time in which the signal line is high and low. Only one signal line is used for unidirectional communication when using Morse code, so in order to create this one GPIO must be used to toggle the line high and low. GPIOA\_4 was used on the STM32l053 in order to control the Morse code line. The GPIO was set as an output in the GPIOA\_MODER register, and it was also set up to have no pull up or pull down resistors. A switch case statement is used in the function "chooseemit" where the letter value, as well as the number of dots or dashes are stored in a struct. This information is then used when transmitting the Morse code. 
+
+\subsubsection{Timing of Morse}
+An algorithm also had to be written for the timing of the Morse code. The length in time of a dot is found by dividing the words per minute by 1200. This method is based on a 50 dot duration standard word PARIS. The length of a dot can be calculated with equation 1 where W is the speed in words per minute and T in miliseconds is the length of a dot.
+
+\begin{equation}
+    T = 1200/W
+\end{equation}
+
+A dash has a duration of three dots. The space in between dots and dashes is a single dot length. The space between letters is three dot lengths, or the length of a dash. For the space in between words is a total of seven dot lengths. \\
+
+The space in between dots and dashes or the Farnsworth speed is kept at a speed of 12 wpm. Adjusting the speed of the Morse for the Balloon Locator changes the length of the dots and dashes. The Balloon Locator is set so that it may run at three different speeds: 7 wpm, 12 wpm, and 17 wpm. The lengths of time for dots and dashes at these different speeds is shown in the following table.
+
+\begin{table}[h]
+\centering
+\caption{List of Morse speeds}
+\begin{tabular}{|c|c|c|}
+\hline
+ Speed & Dot Length & Dash Length \\
+ \hline \hline
+ 7 wpm & 171.4ms & 514.28ms\\
+ \hline
+ 12 wpm & 100ms & 300ms\\
+ \hline
+ 17 wpm & 70.5ms & 211.76ms \\
+ \hline
+ 
+ \end{tabular}
+ \end{table}
+
+\subsubsection{CRC encoder Algorithm}
+This section describes the cyclic redundancy check used in the encoder to verify the accuracy of data that has been passed between encoder and decoder. A flowchart of the CRC algorithm is shown in Figure \ref{Ass4}. CRC was used for the Balloon Locator project because it is an industry standard and it fit the needs of the project to have some form of verification that data was passed correctly from one stage of the project to the next.\\
+
+CRC assigns a small check value to the message being sent by the encoder. The check value is based upon a polynomial calculation of the contents of the data. When this data is retrieved by the decoder, the same calculation is performed on that data to check the veracity of the data.\\
+
+CRC is used because it allows the whole string to be used for a check of correctness. This means that if one letter is sent incorrectly in the message, the CRC will be calculated differently on the receiving end and will disregard the message entirely. The CRC is designed to have a very low chance of failure due to the complicated nature of the calculations involved. The chances of an incorrect message forming the same CRC as a correct message are virtually zero. This makes it a strong choice for the project where having the possibility of an incorrect message could cause problems for the user. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 1\textwidth]{crc}
+    \caption{CRC software block diagram}
+    \label{Ass4}
+\end{figure}
+
+As shown in Figure \ref{Ass4}, the CRC algorithm goes through one byte at a time. It applies the same mathematical bitwise operations to every single byte. An initial value of 0xFFFF is given to a integer. A nested for loop is used here as shown in Figure \ref{Ass4}. For the length of the total input, a loop will apply each byte to the CRC.\\
+
+Another variable "step", is given a value found by performing a bitwise right-shift operation by the value of the counter for the inner for loop and then performing a bitwise and operation on this value with a binary value of one. The initial value also has a bitwise "and" operation performed on it. These two values are then used to perform an exclusive or bitwise operation. This gives the value of the variable "step".\\
+
+The CRC value then has a bitwise right-shift operation with one performed on it. This value then has a bitwise and operation with 0x7FFF performed on it. The final CRC value is then found by using a bitwise exclusive or operation with 0x8408.\\
+
+After these above operations are performed for each byte, the entire CRC value has a bitwise or operation performed on it. Next a new for loop is used. A temporary value is calculated by multiplying four by the counter, adding four to this value, subtracting this number from 16, right-shifting the CRC value by this amount, and performing a bitwise "and" operation with 0xF on the number. A lookup table is used to determine what char corresponds with the numerical value that has been calculated and this is stored in a final result array. This is performed until the for loop reaches its end condition and the result is returned.
+
+\subsubsection{Landing Algorithm}
+The landing algorithm determines whether or not the balloon has landed or not. A flowchart of the landing algorithm is shown in Figure \ref{Ass9001}. The landing algorithm uses a 'status' as its input. The status is a value which shows whether the Balloon was rising, falling, on the ground, or above a certain height.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 1\textwidth]{flyinganddying}
+    \caption{Landing software block diagram}
+    \label{Ass9001}
+\end{figure}
+
+If the landing algorithm is given an input status of zero, it simply assumes that the Balloon Locator has landed and continues to return a status of zero. When the Balloon Locator is turned on, it starts with a status of 1. What a status of 1 implies is that the Balloon Locator is starting its ascent or has not stated it. When the Balloon Locator reaches a height greater than 5000 meters, it will set the status to 2.\\
+
+If the current status is 2 and the Balloon Locator is now below 5000 meters, it means that the Balloon Locator is now beginning its descent. If the balloon somehow rises above 5000 meters again, it will be reset to status 2. Finally, when the balloon's altitude doesn't change between two transmissions, and the status is 3, the status will be set to 0 and the GPS will be turned off. The GPS is turned off by toggling the "enable" pin going to the GPS. This sets the "Vin" pin where the power is being sent to the gps to high impedence which will reduce the power consumption by enough that losses are considered negligible.
+
+
+\subsection{Decoder Software Algorithms}
+The decoder software algorithms is divided into subsubsections that explain why the routines were designed the way that they were. The five areas that are covered include the Raspberry Pi setup, Morse decoding, multi-threading, dictionary lookup, and serial to Bluetooth communication. All routines for the decoder were written in Python except for the CRC routine which was written in C.
+
+\subsubsection{Raspberry Pi Setup}
+This section describes the setup of the Raspberry Pi device for decoding Morse. Pin 7 is where the output from the encoder will be used as the Morse input of the decoder. The GPIO mode is set to board mode, meaning that pins are referred to by the numbers printed on the board. This pin is set in pull up mode. A pull-up circuit is set so that it is always HIGH normally. When a signal passes through, the circuit is shorted to ground. The reason a pull-up circuit is used is because it does not draw as large a current from the encoder.
+
+\subsubsection{Decoding The Morse}
+This section describes the routine written for decoding the Morse. In order to decode Morse code, two different timings are required. The duration that the signal is high must be measured in order to determine the difference between a dot and a dash. The second measurement is the duration the signal is low, this is used to differentiate the spaces between characters, dots/dashes, or words. A flowchart of the decoder software algorithm is shown in Figure \ref{Ass5}. The program makes use of multithreading which will be examined further in this section.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 1\textwidth]{timingdecoding}
+    \caption{Decoder multithread software block diagram}
+    \label{Ass5}
+\end{figure}
+
+Two primary threads are used in the decoder: The timing thread and the decoder thread. The two threads interact with one another to decode the Morse input. The program was designed with two threads in order to continue measuring timings while letters are being decoded. \\
+
+The first thread, the timing thread, records the time for when the signal is high(hightime) and the time for when the signal is low(lowtime). In order to properly decode the Morse, both the hightime and the lowtime must be properly recorded in order to differentiate between dots and dashes given by the hightime, as well as the spaces between dots, spaces between letters, and spaces between words, as given by the lowtime. These times are kept track of by recording the time when the signal is high and recording the time again as soon as the signal goes low. The difference between these two times represents the total time the signal was high. The same thing is done with the lowtime.\\
+
+A state variable is used to help the decoder thread decode only when the signal is low. The final step of the timing thread is to append either a dot or a dash to a buffer which will be decoded in the decoder thread. Whether a dot or a dash is appended is determined by the hightime of the signal which is calculated after the signal returns low. With the timings and state variable set up, the decoder thread can process the Morse string generated in the timing thread. \\ 
+
+The second thread, the decoder thread, takes the string created from the timing thread and decodes it depending on the lowtime of the signal. This thread starts out by measuring the length of time that the signal has been low for. If the time reaches a certain point, greater than 0.29 seconds, then it can be concluded that it is 3 dot lengths, or the space in between letters in Morse code. When it reaches this point, the thread will decode the buffer being generated in the timing thread using the Python Dictionary Lookup function. After this it adds the letter that has been decoded to the end of the decoded message and clears the buffer for new dots and dashes. \\
+
+If the decoded letter is an E twice in a row, the thread will clear the message string as well because the 'E's are the byproduct of the beep and sleep function of the encoder. If the length of time that the signal is low exceeds 0.75 seconds, it can be concluded that a new word has begun and the function will create a space character. Once the decoder thread decodes a '+' character, the end of message procedure begins. At this time, the CRC is calculated on the decoder side and the message is sent through Bluetooth to the Android application. 
+
+
+
+
+
+
+\subsubsection{Python Dictionary Lookup}
+The Morse as mentioned in the "Decoding The Morse" section is written as dots('.') and dashes('-'). When a string of dots and dashes matches with one of the values in the Morse lookup table the alphanumeric or symbolic value is determined. The Morse lookup itself is simple but must interact with the decoder thread described above. When the end of a letter is found, the lookup function described here is used to obtain the alphanumeric symbol. If the entered input does not match anything that is in the Morse lookup function, the program returns an 'A'. 'A' is a default value.
+
+\subsubsection{Serial to Bluetooth}
+The method for connecting from serial to Bluetooth relies on setting a few settings for asynchronous serial communication. The design for this area was shaped by the choice in hardware. The baud rate was set to 9600 because this baud rate is both common in industry and this value was the baud rate needed to communicate with the HC-05. The number of stop bits is set to one and bytesize is set to 8 bits large. The timeout value is set to one.\\
+
+ The number of stop bits is set as one because this was sufficient to show when the end of a transmission was. The bytesize was set to eight bits because it is possible to require a fairly large value to be transmitted over Bluetooth communication. The timeout value is set to 1 because if the duration is longer than this amount of time it is not working properly and that communication can be ignored.
+
+\subsubsection{CRC decoder Algorithm}
+This section describes the cyclic redundancy check used in the decoder to verify the accuracy of data that has been passed between encoder and decoder. The CRC encoder Algorithm section describes much of how the CRC algorithm works and may be referred to for most of that information. This section does not repeat what is already understood from that section, instead, it examines differences in how the CRC interacts with the rest of the decoder program.
+
+\subsection{Android Application Setup}
+The Android Application makes use of several per-existing assets that are provided by other sources including Google. The areas that are covered are Bluetooth recognition and data retrieval, and the Google maps location marker. All routines were written in Java. The Java code was written using the Android Studio IDE to test and debug the app. 
+
+\subsubsection{Bluetooth Recognition and Data retrieval}
+
+The design of the bluetooth recognition and data retrieval portion of the android application is relatively simple. The application must connect to the bluetooth device, and receive the message being sent from the decoder. 
+
+The Android App receives GPS coordinates from the Raspberry Pi. It receives these coordinates via a Bluetooth message sent from the Raspberry pi on the decoder. According to Bluetooth protocol, in order to send messages between a master, in this case the Android app, and a slave, the HC-05 chip on the decoder unit, the two devices must first be paired. Pairing the devices takes 3 steps: First the address of the slave device must be acquired, this step is called the Inquiry step. The second step is the connection step where the two devices are connected together using the address of the slave device. The third step is the Active Connection Mode, in which messages can be sent between the master and slave devices. \\
+
+The Android App was designed so that it would only need to go through steps 2 and 3 of the 3 step process for connecting to a Bluetooth device. In order to skip the first step the Android App was hard-coded with the address of the HC-05 chip used for the project. This allows for simpler design of the Android App as well as quicker connection times when pairing the Bluetooth devices. The address of the chip used was discovered by using a third party application taken from the Google Play Store which simply gives the address of Bluetooth devices in the area. In the Balloon Locator App, the connection process is fairly simple as the address is already known and the Android device simply has to search for the address and connect to it upon discovery. These steps are done in the functions "find\_Bluetooth" and "connect\_Bluetooth". \\
+
+After connection, the final step of Bluetooth protocol is sending information between the master and slave device. For the Balloon Locator project, the HC-05 on the decoder unit is the slave and the Android device is the master. In the function "Bluetooth\_Begin\_Listen\_For\_Data" the Android device will attempt to read messages sent from the decoder. The messages are sent as encoded bytes which are then converted to ASCII characters and sent via global variables to the map activity. 
+
+
+
+\subsubsection{Google Maps Location Marker}
+
+The Google maps activity is relatively simple. Android studio sets up most of the details for the user upon creation of the activity. For the Balloon Locator Application, the GPS values are transferred from the mainActivity where the Bluetooth messages are received. In order to do this transfer, a global variable activity is required. The global variable activity allows the app to transfer information between different activities which works well for the design of the Balloon Locator Application. The GPS coordinates are received and converted from degrees/minutes/seconds to degrees. The application converts the GPS coordinates from the GPGGA message into degrees usable in the Google Maps API. Once these values are found, the map is opened with a marker placed at the location of the Balloon. 
+
+
+\section{Results}
+The final project meets all specifications that were laid out in the contract. The encoder meets the size spec by easily fitting within the 12x21 centimeter container. The encoder transmits Morse at speeds varying from 7 to 17 wpm and the decoder can decode from 7 to 17 wpm. Bluetooth is used to connect with an Android Application to mark the location of the Balloon Locator on a map. Greater information on the timing of Morse and power consumption of the encoder is detailed in two subsections.  
+
+\subsection{Timing of Morse Code}
+This section contains the results for the timing of the Morse code from the encoder. Getting the timing of the Morse code correct is an integral part of the Balloon Locator Project. The proper timings for the three different speeds were calculated in Section 3.2.3. The speeds were tested and measured using a Digilent Analog Discovery 2 which contains and Oscilloscope feature. The Oscilloscope was used to measure the timing of the Morse code at various speeds by measuring the length of one dot. As mentioned in Section 3.2.3, the length of a dot is the basis for the speed of a Morse transmission. The various speeds of the Morse code were measured and recorded. The measurements were taken with the oscilloscope feature on the Analog Discovery device. The measurement taken for the message being sent at 12 words per minute is shown in Figure \ref{12wpmfigureass}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = .6\textwidth]{12wpm.png}
+    \caption{Portion of message sent at 12 wpm}
+    \label{12wpmfigureass}
+\end{figure}
+
+Figure \ref{12wpmfigureass} shows that the dot length for the message sent at 12 wpm is 101.1ms. The measurement for the message being sent at 7 words per minute is shown in Figure \ref{7wpmfigureass}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = .6\textwidth]{7wpm.png}
+    \caption{Portion of message sent at 7 wpm}
+    \label{7wpmfigureass}
+\end{figure}
+
+As shown in the figure above, the message speed has a dot length of 170.04ms. The measurement for the message being sent at 17 words per minute is shown in Figure \ref{17wpmfigureass}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = .6\textwidth]{17wpm.png}
+    \caption{Portion of message sent at 17 wpm}
+    \label{17wpmfigureass}
+\end{figure}
+
+These values are shown in Table \ref{ASSTABLEHA} along with the accuracy of the measured times compared to the theoretical times.\\
+
+\begin{table}[h]
+\centering
+\caption{List of Morse Timing Values}
+\begin{tabular}{|c|c|c|c|}
+\hline
+  Speed & Theoretical dot length & Actual dot length & Percent Error\\
+ \hline \hline
+   7 & 171.4ms & 170.04ms & 0.8\% \\
+ \hline
+    12 & 100ms & 101.1ms & 1.1\% \\
+ \hline
+  17 WPM & 70.5ms & 71.232ms & 1.0\% \\
+ \hline
+ \end{tabular}
+ \label{ASSTABLEHA}
+ \end{table}
+
+As shown in Table \ref{ASSTABLEHA}, the ideal and measured times are very similar. It is also important for the decoder to be able to decode the transmissions at all three of these speeds. Table \ref{ASSTABLEHA} shows that all three transmissions were readable by the decoder. This proves the spec that the decoder is capable of decoding Morse code between 7 and 17 words per minute. It also proves the spec that the encoder is capable of sending Morse code at 12 words per minute.  
+
+
+%\subsection{Power Consumption of encoder}
+\subsection{CRC Calculation}
+The cyclic redundancy check ensures the validity of messages sent through Morse code. Once the Balloon Locator Project is used with actual Morse code, transmissions will likely be off sometimes. False data could cause problems for the user, so a CRC was put in place in order to remove false data from transmissions. The CRC was tested by having the decoder print the calculated CRC on its end, as well as the calculated CRC sent from the encoder. This was performed numerous times with perfect matches. Three separate messages were sent in order to make sure that the calculation was accurate. Table \ref{CRCASSTABLE} shows the results of the testing.
+
+\begin{table}[h]
+\centering
+\caption{List of CRC values}
+\begin{tabular}{|c|c|c|c|}
+\hline
+  Message & encoder CRC value & decoder CRC value & Validity\\
+ \hline \hline
+   4452.1023,N,06822.0137,W,40.3 & E5D3 & E5D3 & good \\
+ \hline
+   4451.9001,N,06821.0231,W,40.1 & 007E & 007E & good \\
+ \hline
+    4042.6000,N,07400.4858,W,76.7 & 0BD3 & 7B56 & bad\\
+ \hline
+ 
+ \end{tabular}
+ \label{CRCASSTABLE}
+ \end{table}
+
+
+In addition to the testing performed in Table \ref{CRCASSTABLE}, the decoder was tested to ensure proper procedure when the CRC does not match. In order to test the decoder without a CRC match, the wire being used to simulate wireless transmission was pulled out and reinserted in the middle of a Morse transmission. This caused the messages to be different causing a mismatch in the CRC. The third result shown in Table \ref{CRCASSTABLE} shows the results of pulling the wire out in the middle of a transmission. The decoder recognized this and simply discarded the broken message without sending it to the Android Application. 
+
+
+
+\section{Conclusion}
+This report describes the design of the Balloon Locator. The project transmits Morse code at a speed varying from 7 to 17 wpm using GPS coordinates to allow users to know where the Balloon Locator is. CRC is used to verify the correctness of the information between the encoder and decoder stages of the project and Bluetooth is used to transmit the coordinates to a wireless Android device. The project consist in its entirety of the physical encoder, decoder, and the Android application. The final device met the desired specifications as a low-power solution for high-altitude ballooning.
+\\
+\\
+\\
+\\
+\\
+\section{References}
+[1]http://www.st.com/content/ccc/resource/technical/document/reference\_manual/\\2f/b9/c6/34/28/29/42/d2/DM00095744.pdf/files/DM00095744.pdf/jcr:content/translations\\/en.DM00095744.pdf\\
+
+[2]https://www.raspberrypi.org/learning/morse-code-virtual-radio/worksheet/\\
+
+[3]http://www.vidnis.com/2015/09/acquiring-gps-information-from-s1216-r1.html\\
+
+
+
+\newpage
+
+\section*{Appendix A: Project Contract}
+\newpage
+
+\section*{Appendix B: Acknowledgement}
+\newpage
+\section*{Appendix C: Parts list}
+\newpage
+\section*{Appendix D: Project Schematic}
+
+\end{document}
